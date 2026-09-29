@@ -52,7 +52,7 @@
 - **M0(本期)**:repo 與文件(M-PLAN/CLAUDE.md/README);等 FB 粉專建立期間可先行 scaffold
 - **M1:FB 粉專媒體發佈**——圖片直傳(`source` multipart)、影片直傳(resumable)、`scheduled_publish_time` 原生排程、發佈歷史;編輯器「附件為主、說明為輔」IA 首版
 - **M2:YouTube**——複製文管庫 `services/youtube` 模組(gis/uploadApi/video),配合本產品 IA 調整
-- **M3:Threads/IG**——前置查證:unpublished-photo hosted URL 的穩定性;可行則以組合流程實作(直傳 FB 拿 URL→餵 container),不可��則圖床決策(觸發 D3 後段/新期)
+- **M3:Threads/IG**——前置查證:unpublished-photo hosted URL 的穩定性;可行則以組合流程實作(直傳 FB ��� URL→餵 container),不可行則圖床決策(觸發 D3 後段/新期)
 - **遠期:聲音線**——先定義內容形態(podcast 節目 vs 短語音),再決定 VOICE-Message / AUDIO-Message 獨立與否;依賴本產品的影片/圖床能力當載體
 
 ## 6. 與 TEXT-Message 的邊界備忘
