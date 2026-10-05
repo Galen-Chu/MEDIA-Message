@@ -49,7 +49,7 @@
 
 ## 5. 分期
 
-- **M0(本期)**:repo 與文件(M-PLAN/CLAUDE.md/README);等 FB 粉專建立期間可先行 scaffold
+- **M0(✅ 2026-10-05 完成)**:repo 與文件(M-PLAN/CLAUDE.md/README)+ scaffold(Vite + TS strict + vitest + Playwright E2E smoke + CI/Pages workflows;工具鏈與設計系統自文管庫複製,詳見 CLAUDE.md 架構節)
 - **M1:FB 粉專媒體發佈**——圖片直傳(`source` multipart)、影片直傳(resumable)、`scheduled_publish_time` 原生排程、發佈歷史;編輯器「附件為主、說明為輔」IA 首版
 - **M2:YouTube**——複製文管庫 `services/youtube` 模組(gis/uploadApi/video),配合本產品 IA 調整
 - **M3:Threads/IG**——前置查證:unpublished-photo hosted URL 的穩定性;可行則以組合流程實作(直傳 FB 拿 URL→餵 container),不可行則圖床決策(觸發 D3 後段/新期)
@@ -63,7 +63,7 @@
 
 ## 9. M1 開工注意事項(2026-10-05,跨 session 交接)
 
-- **M0 未做**:repo 目前僅 M-PLAN/CLAUDE.md/README——先 scaffold(同文管庫 stack:Vite + TS strict + vitest + E2E smoke + CI),`M-PLAN.md` §4 D6 為骨架規格;
+- **M0(2026-10-05 已完成 scaffold,本條留檔)**:repo 原本僅 M-PLAN/CLAUDE.md/README——已 scaffold(同文管庫 stack:Vite + TS strict + vitest + E2E smoke + CI),`M-PLAN.md` §4 D6 為骨架規格;
 - **M1 動工前先定 D7(上傳路徑與 token 保管)**:紅線「媒體絕不過後端」(§3)×「FB page token 保管於 worker」(文管庫模式)有張力 → 兩案:
   - (a) **瀏覽器端完成 FB OAuth**(popup + `config_id` 組態),page token 僅存記憶體、瀏覽器直傳 Graph API——媒體零後端,與文管庫 YouTube 上傳(token 僅記憶體、瀏覽器直傳)哲學一致,**建議採此**;
   - (b) worker 出借短期 page token 供瀏覽器直傳——token 暴露面較大且多一層複雜度;

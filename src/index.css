@@ -1,0 +1,285 @@
+/* 設計系統自文管庫(TEXT-Message)整套複製——同組 token,對比已以 scripts/contrast-audit.mjs 驗證 AA */
+:root {
+  /* 文字對比以 WCAG 2.1 AA(≥4.5:1)驗證,全組合數值見 scripts/contrast-audit.mjs */
+  color-scheme: light;
+  /* brand/accent=文字用色調(淺底深、深底淺);brand-fill/accent-fill=底色填充(白/深字搭配) */
+  --brand: #5849d2;
+  --brand-fill: #6c5ce7;
+  --accent: #b03d1d;
+  --accent-fill: #ff7a59;
+  --bg: #f6f5fb;
+  --card: #ffffff;
+  --surface-soft: #f8f7fd;
+  --border-1: #eceaf7;
+  --border-2: #f1effa;
+  --border-3: #e4e1f5;
+  --text-main: #1f2333;
+  --text-sub: #5b5773;
+  --text-weak: #66627e;
+  --text-faint: #736e92;
+  --pill-purple-bg: #f1edff;
+  --pill-purple-bg-2: #edeafb;
+  --pill-orange-bg: #fff1ec;
+  --error: #d62f1c;
+  --shadow-card: 0 2px 10px rgba(108, 92, 231, 0.06);
+}
+
+/* 深色模式:僅覆寫語意變數(元件皆走變數);brand 文字調亮、fill 維持識別 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --brand: #a79aff;
+    --brand-fill: #6c5ce7;
+    --accent: #ff9d7d;
+    --accent-fill: #ff7a59;
+    --bg: #15152a;
+    --card: #22223a;
+    --surface-soft: #2a2a44;
+    --border-1: #2b2b45;
+    --border-2: #2e2e49;
+    --border-3: #3a3a5c;
+    --text-main: #eceaf7;
+    --text-sub: #c6c3dd;
+    --text-weak: #9b97b8;
+    --text-faint: #8d89ae;
+    --pill-purple-bg: #2f2a4e;
+    --pill-purple-bg-2: #342f57;
+    --pill-orange-bg: #45312a;
+    --error: #ff6b5e;
+    --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.35);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Noto Sans TC', 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--text-main);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-3);
+  border-radius: 8px;
+}
+
+/* 表單控制項:明確配對底色與文字色(深色模式下 UA 預設白底曾導致近白字壓白底) */
+input,
+textarea,
+select {
+  background: var(--card);
+  color: var(--text-main);
+}
+::placeholder {
+  color: var(--text-sub);
+  opacity: 1;
+}
+
+textarea:focus,
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--brand-fill);
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.18);
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.btn {
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 10px;
+  padding: 10px 18px;
+}
+.btn-primary {
+  background: var(--brand-fill);
+  color: #fff;
+}
+.btn-outline {
+  background: var(--card);
+  border: 1px solid var(--border-3);
+  color: var(--brand);
+}
+.btn-accent {
+  background: var(--accent-fill);
+  color: #38130a;
+}
+.btn-ghost {
+  background: var(--bg);
+  color: var(--brand);
+}
+
+.text-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 9px;
+  border: 1px solid var(--border-3);
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text-main);
+}
+
+.pill {
+  font-size: 10.5px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-weight: 700;
+  white-space: nowrap;
+  height: fit-content;
+}
+.pill-purple {
+  background: var(--pill-purple-bg);
+  color: var(--brand);
+}
+.pill-orange {
+  background: var(--pill-orange-bg);
+  color: var(--accent);
+}
+
+.field-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-weak);
+  margin-bottom: 6px;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 35, 51, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.modal-card {
+  background: var(--card);
+  border-radius: 18px;
+  padding: 24px;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #1f2333;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  animation: toastIn 0.2s ease;
+}
+
+/* ── 響應式版面:以下 class 的基礎樣式對應原本 inline 樣式,窄視窗時收合 ── */
+.app-sidebar {
+  width: 232px;
+  flex-shrink: 0;
+  background: var(--card);
+  border-right: 1px solid var(--border-1);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+}
+.app-main {
+  padding: 32px 40px;
+}
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.stat-card {
+  flex: 1;
+}
+.draft-source {
+  width: 280px;
+  flex-shrink: 0;
+}
+.library-cats {
+  width: 180px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.modal-card {
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+}
+
+@media (max-width: 1024px) {
+  .stat-row {
+    flex-wrap: wrap;
+  }
+  .stat-card {
+    flex: 1 1 45%;
+  }
+  .dash-two-col,
+  .draft-layout {
+    flex-direction: column;
+  }
+  .draft-source {
+    width: 100%;
+  }
+}
+
+@media (max-width: 720px) {
+  .app-sidebar {
+    width: 64px;
+    padding: 16px 8px;
+  }
+  .sidebar-brand-text,
+  .sidebar-footer,
+  .nav-label {
+    display: none;
+  }
+  .nav-btn {
+    justify-content: center;
+    padding: 10px 0;
+  }
+  .app-main {
+    padding: 16px;
+  }
+  .library-layout {
+    flex-direction: column;
+  }
+  .library-cats {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
