@@ -46,11 +46,12 @@
 - **D4 排程模式**:平台原生排程為唯一路徑;worker 不碰媒體
 - **D5 與 TEXT-Message 整合**:深連結雙向導(排程/說明預填);Meta OAuth app 共用與否屆時拍板(token 建議**各自 worker** 保管,避免部署互綁);發文歷史以**匯出/匯入 JSON** 聚合,不共用 KV(維持各自資料邊界)
 - **D6 技術骨架**:同 stack 同慣例——React+TypeScript(strict)+Vite、Cloudflare Workers+KV、vitest(純邏輯必測、**完整請求形狀斷言**)、E2E smoke 等級、UI 字串集中 constants.ts;共用元件用**複製**、不 monorepo(文管庫技術債 sprint 後再議)
+- **D7 上傳路徑與 token 保管(2026-10-05 定案,採案 a)**:**瀏覽器端完成 FB OAuth**——FB JS SDK `FB.login({ config_id })` 直接回傳短效 user token(約 1–2 小時,**全程不需 app secret**),token 僅存記憶體;瀏覽器 GET `/me/accounts`(Graph 允許 CORS)取 page token → 直傳 `POST /{page-id}/photos`(FormData multipart)與 `/videos`;**worker 完全不上線、零後端 secrets**。排程=FB 原生 `scheduled_publish_time`(上傳當下帶參數,10 分鐘~75 天窗口),上傳即排程、不必保存 token。媒體權限沿用文管庫既有組態(pages_show_list/pages_read_engagement/pages_manage_posts 三項,**免另建**);page id 一律取自 `/me/accounts` 響應(坑#7)。前端環境變數:`VITE_FB_APP_ID`、`VITE_FB_CONFIG_ID`(非機密,比照 `VITE_GMAIL_CLIENT_ID` 慣例,缺=降級建置不失敗);後台唯一動作=App 設定加入本產品網域。**Graph 版本固定 v26.0**(2026-10-05 當下最新;文件逐項查證:圖片走 photos `source` multipart ≤4MB;影片採現行 Resumable Upload API 三步——`POST /{app-id}/uploads` → binary 傳輸取 file handle → `graph-video` 發佈呼叫帶 `fbuploader_video_file_chunk`+`description`,排程一律 `published=false`+`scheduled_publish_time`)。規格來源:文管庫 FB 串接 session 端到端驗收(2026-10-02)之交接,踩坑對照文管庫 `docs/BACKEND.md` §6.1/§7/§8
 
 ## 5. 分期
 
 - **M0(✅ 2026-10-05 完成)**:repo 與文件(M-PLAN/CLAUDE.md/README)+ scaffold(Vite + TS strict + vitest + Playwright E2E smoke + CI/Pages workflows;工具鏈與設計系統自文管庫複製,詳見 CLAUDE.md 架構節)
-- **M1:FB 粉專媒體發佈**——圖片直傳(`source` multipart)、影片直傳(resumable)、`scheduled_publish_time` 原生排程、發佈歷史;編輯器「附件為主、說明為輔」IA 首版
+- **M1(✅ 2026-10-05 實作完成,待真機端到端驗收)**:FB 粉專媒體發佈——圖片直傳(`source` multipart)、影片直傳(現行 Resumable Upload API 三步)、`scheduled_publish_time` 原生排程、發佈歷史(僅 metadata);編輯器「附件為主、說明為輔」IA 首版
 - **M2:YouTube**——複製文管庫 `services/youtube` 模組(gis/uploadApi/video),配合本產品 IA 調整
 - **M3:Threads/IG**——前置查證:unpublished-photo hosted URL 的穩定性;可行則以組合流程實作(直傳 FB 拿 URL→餵 container),不可行則圖床決策(觸發 D3 後段/新期)
 - **遠期:聲音線**——先定義內容形態(podcast 節目 vs 短語音),再決定 VOICE-Message / AUDIO-Message 獨立與否;依賴本產品的影片/圖床能力當載體

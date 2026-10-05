@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-MEDIA-Message(媒管庫;repo Galen-Chu/MEDIA-Message)— 社群媒體**媒體發佈**工具:媒體為主、文字是說明。與 TEXT-Message(文管庫)為家族產品,技術骨架與慣例整套沿用文管庫(見下);**目前狀態:M0 骨架完成(2026-10-05)、M1 開發中(待 D7 決策)**,產品決策與分期見 `M-PLAN.md`(D1–D6 為暫行決議,動工前可推翻)。
+MEDIA-Message(媒管庫;repo Galen-Chu/MEDIA-Message)— 社群媒體**媒體發佈**工具:媒體為主、文字是說明。與 TEXT-Message(文管庫)為家族產品,技術骨架與慣例整套沿用文管庫(見下);**目前狀態:M0 骨架完成、M1 FB 粉專媒體發佈實作完成(2026-10-05,待真機端到端驗收)**,產品決策 D1–D7 定案見 `M-PLAN.md` §4。
 
 ## 常用指令
 
@@ -11,15 +11,25 @@ npm test           # 單元測試(vitest)
 npm run test:e2e   # Playwright E2E(serve dist;跑之前先 npm run build)
 ```
 
-## 架構(M0 骨架;M1 起擴充)
+## 架構(M1;後續期次擴充)
 
 - 前端:React 18 + TypeScript(strict)+ Vite 5(自文管庫複製的同版工具鏈);編輯器第一公民=媒體檔(本地檔案僅記憶體,落地僅 metadata)
-- `src/App.tsx` — M0 殼層(品牌定位/產品狀態/平台規劃);M1 將以「附件為主、說明為輔」編輯器 IA 取代
-- `src/utils/mediaKind.ts` — 媒體類型偵測純函式(MIME 前綴,缺漏時副檔名 fallback),配 vitest 單元測試
+- `src/App.tsx` — 編輯器主頁:「附件為主、說明為輔」IA(媒體附件 → 說明 → 發佈 → 發佈歷史)
+- `src/services/facebook/` — M1 FB 粉專模組(**D7:瀏覽器端 OAuth、零後端、零 app secret**):`config`(env+Graph v26.0)/`sdk`(FB JS SDK 載入、`FB.login({config_id})` 回短效 user token)/`graph`(`/me/accounts` 錨定抽取 page id、photos multipart 直傳、影片 Resumable Upload API 三步;fetch 可注入)/`schedule`(排程時間窗純邏輯)/`errors`(Graph code 分類)
+- `src/hooks/useFacebook.ts` — 連線狀態機(`disabled|disconnected|connecting|connected|error`;token 僅記憶體、過期導向重連);`publish` 統一入口(檔案驗證+排程驗證+分派圖/影片路徑+影片進度)
+- `src/services/history.ts` — 發佈歷史:僅 metadata 落地(localStorage `media-message:v1`,上限 200 筆,storage 可注入)
+- `src/components/` — `MediaPicker`(附件選檔+預覽)/`PublishPanel`(連線+粉專選擇+立即/排程+進度)/`HistoryCard`
+- `src/utils/mediaKind.ts` — 媒體類型偵測(MIME 前綴,缺漏時副檔名 fallback);`src/utils/format.ts` — 大小/時間顯示格式化
 - `src/index.css` — 設計系統自文管庫整套複製(深色模式、WCAG AA 已驗證 token;調整 palette 時重跑 `scripts/contrast-audit.mjs`)
 - `vite.config.ts` 的 `base: '/MEDIA-Message/'` 為 Pages 子路徑所需,勿移除
-- 後端輔助(可選):Cloudflare Workers + KV,職責僅限平台 OAuth 代管(token 加密保存)與 API 代呼叫——**媒體絕不過後端、worker 佇列不承載媒體**;排程一律平台原生(YouTube `publishAt`、FB `scheduled_publish_time`)
-- caption AI:Gemini BYOK 模組複製自文管庫(語氣/角色/語言),key 僅存使用者瀏覽器
+- 後端輔助:M1 起**不需要**——FB 全程瀏覽器直傳;未來期次(Threads/IG 需 hosted URL)再評估
+- caption AI:Gemini BYOK 模組複製自文管庫(語氣/角色/語言)屬後續期次,key 僅存使用者瀏覽器
+
+## FB 串接設定(D7:瀏覽器端 OAuth)
+
+- 本機:`.env.local` 填 `VITE_FB_APP_ID`/`VITE_FB_CONFIG_ID`(皆非機密;範本見 `.env.example`,值來源與後台設定=文管庫 `docs/BACKEND.md` §7.2,組態沿用文管庫三項權限免另建)
+- 正式:GitHub secrets `FB_APP_ID`/`FB_CONFIG_ID` → `deploy.yml` 選用注入 `.env.production`(缺 secret=示範模式建置,不得失敗)
+- 後台唯一動作:Meta App 設定加入本站網域(localhost 開發 + GitHub Pages 網域)
 
 ## 紅線(修改時勿破壞)
 

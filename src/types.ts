@@ -4,10 +4,5 @@
  */
 export type MediaKind = 'image' | 'video' | 'audio' | 'other';
 
-/** 平台支援表列(M0 顯示層;內容為 M-PLAN §2 查證結論,動手前仍須複查當下文件)。 */
-export interface PlatformSupportRow {
-  platform: string;
-  capability: string;
-  schedule: string;
-  phase: string;
-}
+/** 發佈模式:立即 or 平台原生排程(D4:排程一律平台原生)。 */
+export type PublishMode = 'now' | 'schedule';

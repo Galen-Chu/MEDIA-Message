@@ -27,7 +27,12 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      # M1 起將依 D7 決策加入 Meta 相關 secret 選用注入段(缺 secret = 降級建置,不得失敗)
+      # FB 瀏覽器 OAuth(D7):app id/組態 id 非機密,統一走 secret 選用注入;
+      # 缺 secret = 降級建置(示範模式),不得失敗——CI 與本地無 env 路徑同規
+      - name: Write optional FB env
+        if: ${{ secrets.FB_APP_ID != '' && secrets.FB_CONFIG_ID != '' }}
+        run: |
+          printf 'VITE_FB_APP_ID=%s\nVITE_FB_CONFIG_ID=%s\n' "${{ secrets.FB_APP_ID }}" "${{ secrets.FB_CONFIG_ID }}" > .env.production
       - run: npm test
       # build 內含 tsc -b 型別檢查,等同基本 CI 關卡
       - run: npm run build
