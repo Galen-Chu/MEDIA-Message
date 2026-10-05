@@ -60,3 +60,12 @@
 - FB **文字**發佈留在文管庫(`threads/` 模組鏡像),本產品不做純文字發佈;兩邊各自保管 token、路線圖互不綁架(2026-09-29 維護者確認);
 - 文管庫既有功能(YouTube 上傳、Threads 發佈)不因本產品改動;
 - 本產品開工與文管庫進行中事項(文庫雲端備份方案 A 等)互不阻塞。
+
+## 9. M1 開工注意事項(2026-10-05,跨 session 交接)
+
+- **M0 未做**:repo 目前僅 M-PLAN/CLAUDE.md/README——先 scaffold(同文管庫 stack:Vite + TS strict + vitest + E2E smoke + CI),`M-PLAN.md` §4 D6 為骨架規格;
+- **M1 動工前先定 D7(上傳路徑與 token 保管)**:紅線「媒體絕不過後端」(§3)×「FB page token 保管於 worker」(文管庫模式)有張力 → 兩案:
+  - (a) **瀏覽器端完成 FB OAuth**(popup + `config_id` 組態),page token 僅存記憶體、瀏覽器直傳 Graph API——媒體零後端,與文管庫 YouTube 上傳(token 僅記憶體、瀏覽器直傳)哲學一致,**建議採此**;
+  - (b) worker 出借短期 page token 供瀏覽器直傳——token 暴露面較大且多一層複雜度;
+- **可複用資產(文管庫 repo `Galen-Chu/TEXT-Message`)**:`docs/BACKEND.md` §7/§8(FB OAuth 組態模式全記錄:App 層級權限 → 組態 → config_id;踩坑 #7/#8 必讀)、`worker/src/facebook/`(OAuth/publish 模組模式)、`src/components/PublishCard.tsx`(平台頁簽 UI 模式);
+- 現實狀態:粉專已建立並完成文字發文驗收(OAuth 組態模式);Meta App/商業組合/組態 ID 見文管庫 `docs/BACKEND.md` §7.2——**M1 沿用同一 App 與粉專**,組態是否另建視 media scope 而定。
