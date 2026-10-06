@@ -13,3 +13,8 @@ TEXT-Message(文管庫)的家族產品:[文管庫](https://github.com/Galen-Chu/
 | Facebook 粉專 | 直傳 | 直傳 | 原生 `scheduled_publish_time` |
 | YouTube | — | 規劃中(M2) | 原生 `publishAt` |
 | Threads / Instagram | 規劃中(M3,平台 API 限制需公開網址) | 規劃中(M3) | — |
+
+
+## 授權
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
