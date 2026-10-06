@@ -51,9 +51,10 @@
 ## 5. 分期
 
 - **M0(✅ 2026-10-05 完成)**:repo 與文件(M-PLAN/CLAUDE.md/README)+ scaffold(Vite + TS strict + vitest + Playwright E2E smoke + CI/Pages workflows;工具鏈與設計系統自文管庫複製,詳見 CLAUDE.md 架構節)
-- **M1(✅ 2026-10-05 實作完成,待真機端到端驗收)**:FB 粉專媒體發佈——圖片直傳(`source` multipart)、影片直傳(現行 Resumable Upload API 三步)、`scheduled_publish_time` 原生排程、發佈歷史(僅 metadata);編輯器「附件為主、說明為輔」IA 首版
+- **M1(✅ 2026-10-05 實作完成;2026-10-06 正式站啟用模式部署成功、bundle 注入驗證;真機驗收清單=`docs/SETUP.md` §5,待執行)**:FB 粉專媒體發佈——圖片直傳(`source` multipart)、影片直傳(現行 Resumable Upload API 三步)、`scheduled_publish_time` 原生排程、發佈歷史(僅 metadata);編輯器「附件為主、說明為輔」IA 首版
 - **M2:YouTube**——複製文管庫 `services/youtube` 模組(gis/uploadApi/video),配合本產品 IA 調整
 - **M3:Threads/IG**——前置查證:unpublished-photo hosted URL 的穩定性;可行則以組合流程實作(直傳 FB 拿 URL→餵 container),不可行則圖床決策(觸發 D3 後段/新期)
+- **候選(2026-10-06 評估,待維護者拍板):媒體 AI**——一期「看媒體生成說明/標籤」(Gemini 多模態,BYOK 瀏覽器直呼,圖 inline ≤20MB 請求上限內)、二期「圖片 AI 編修」(Gemini 2.5 Flash Image 生成式改圖);評估結論=**零後端可行**(編輯已發佈說明=平台 API 瀏覽器直呼;媒體檔編輯=Canvas/WebCodecs 純瀏覽器;影片 AI 編輯今日不實際)。資料邊界:BYOK=媒體直送使用者金鑰的 AI 服務,UI 須誠實標示。拍板後正式入分期與 D 編號
 - **遠期:聲音線**——先定義內容形態(podcast 節目 vs 短語音),再決定 VOICE-Message / AUDIO-Message 獨立與否;依賴本產品的影片/圖床能力當載體
 
 ## 6. 與 TEXT-Message 的邊界備忘

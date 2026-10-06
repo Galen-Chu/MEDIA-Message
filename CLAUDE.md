@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-MEDIA-Message(媒管庫;repo Galen-Chu/MEDIA-Message)— 社群媒體**媒體發佈**工具:媒體為主、文字是說明。與 TEXT-Message(文管庫)為家族產品,技術骨架與慣例整套沿用文管庫(見下);**目前狀態:M0 骨架完成、M1 FB 粉專媒體發佈實作完成(2026-10-05,待真機端到端驗收)**,產品決策 D1–D7 定案見 `M-PLAN.md` §4。
+MEDIA-Message(媒管庫;repo Galen-Chu/MEDIA-Message)— 社群媒體**媒體發佈**工具:媒體為主、文字是說明。與 TEXT-Message(文管庫)為家族產品,技術骨架與慣例整套沿用文管庫(見下);**目前狀態:M0+M1 已上線——正式站啟用模式部署成功(2026-10-06,bundle 注入驗證),M1 真機驗收待執行(清單=`docs/SETUP.md` §5)**,產品決策 D1–D7 定案見 `docs/M-PLAN.md` §4。
 
 ## 常用指令
 
@@ -27,9 +27,14 @@ npm run test:e2e   # Playwright E2E(serve dist;跑之前先 npm run build)
 
 ## FB 串接設定(D7:瀏覽器端 OAuth)
 
-- 本機:`.env.local` 填 `VITE_FB_APP_ID`/`VITE_FB_CONFIG_ID`(皆非機密;範本見 `.env.example`,值來源與後台設定=文管庫 `docs/BACKEND.md` §7.2,組態沿用文管庫三項權限免另建)
-- 正式:GitHub secrets `FB_APP_ID`/`FB_CONFIG_ID` → `deploy.yml` 選用注入 `.env.production`(缺 secret=示範模式建置,不得失敗)
-- 後台唯一動作:Meta App 設定加入本站網域(localhost 開發 + GitHub Pages 網域)
+- 完整手冊(維護者/驗收測試者/自架者):`docs/SETUP.md`——後台來源、本機 `.env.local`、正式 secrets 與 bundle 探測驗證、驗收清單皆在該檔;新平台串接上線時於該檔加節
+- 摘要:GitHub secrets `FB_APP_ID`/`FB_CONFIG_ID` → `deploy.yml` 選用注入 `.env.production`(缺 secret=示範模式建置,不得失敗);後台唯一動作=Meta App 加入本站網域
+
+## CI/CD
+
+- PR:`.github/workflows/ci.yml`(vitest → build → Playwright)
+- main push:`deploy.yml`(test → build → E2E → Pages 部署;**E2E 是部署閘門**,示範與啟用兩種建置皆須通過——E2E 斷言採模式分歧擇一)
+- secret 注入=選用式(`env:` + shell `if`,`secrets` context 不可用於 step `if:`);CI 事故與教訓見 `docs/INCIDENTS.md`
 
 ## 紅線(修改時勿破壞)
 
@@ -45,3 +50,12 @@ npm run test:e2e   # Playwright E2E(serve dist;跑之前先 npm run build)
 - 版本與依賴異動需同步 `package-lock.json`(部署用 `npm ci`)
 - 與文管庫共用元件採**複製**,不 monorepo;兩產品路線圖互不綁架
 - **CI/workflow 教訓見 `docs/INCIDENTS.md`**——改 workflow 前先讀;注入段一律複製文管庫 proven 模式(`env:`+shell `if`),`secrets` 不可用於 step 的 `if:`
+- **文件慣例(2026-10-06 對齊文管庫)**:root 僅 `README.md`(對外門面+現況快照)與 `CLAUDE.md`(本檔),其餘全在 `docs/`、全大寫——計畫檔 `-PLAN` 後綴(`docs/M-PLAN.md` 為唯一常駐路線圖,某期決策膨脹才分拆 `<功能>-PLAN.md`)、角色檔用職能名(`SETUP` 串接與驗收手冊/`INCIDENTS` 事故教訓/`BACKEND` 後端首上線才建);計畫檔三段式=決策記錄(D 編號,推翻就地更新+日期)→分期(✅+日期收尾,不刪歷史)→技術要點;驗收分工=操作流程寫 `SETUP`、功能條件寫 `M-PLAN` 分期;CLAUDE.md 待辦採時間軸敘事 append
+
+## 開發待辦與優化清單
+
+**現況(2026-10-06)**:M0+M1 已上線(啟用模式部署成功、bundle 注入驗證);**M1 真機驗收待執行**(清單=`docs/SETUP.md` §5,首次實測關注:影片 file_type 是否限 mp4、瀏覽器直傳 graph-video 的 CORS)。
+
+- **2026-10-06:CI 修復+文件體系建立。**①首次部署失敗=`secrets` 誤用於 step `if:`(workflow 檔層級被拒,零 jobs),改文管庫 proven 模式修復(commit `0d1cc13`),事故歸檔 `docs/INCIDENTS.md` 首篇;②secret 值經維護者重存後部署綠燈,bundle 探測確認 app id/config id 注入(正式站=啟用模式);③文件架構對齊文管庫:`M-PLAN.md` 遷 `docs/`、`SETUP.md`/`LICENSE` 建立、README/CLAUDE 補齊。
+- 待辦排隊:M2 YouTube(複製文管庫 `services/youtube` 模組)→ M3 Threads/IG(hosted URL 穩定性先查證;**圖床=後端唯一觸發點**,屆時才建 `docs/BACKEND.md`)。
+- **候選(2026-10-06 評估,待維護者拍板)**:媒體 AI——一期「看媒體生成說明/標籤」(Gemini 多模態 BYOK 瀏覽器直呼)、二期「圖片 AI 編修」(生成式);評估結論=**零後端可行**,詳 M-PLAN §5 候選註記。
