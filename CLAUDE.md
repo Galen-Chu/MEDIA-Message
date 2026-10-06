@@ -44,3 +44,4 @@ npm run test:e2e   # Playwright E2E(serve dist;跑之前先 npm run build)
 - 新增純邏輯一律配 vitest 單元測試;hooks 測試以 `// @vitest-environment jsdom` 單檔切環境;E2E 維持 smoke 等級
 - 版本與依賴異動需同步 `package-lock.json`(部署用 `npm ci`)
 - 與文管庫共用元件採**複製**,不 monorepo;兩產品路線圖互不綁架
+- **CI/workflow 教訓見 `docs/INCIDENTS.md`**——改 workflow 前先讀;注入段一律複製文管庫 proven 模式(`env:`+shell `if`),`secrets` 不可用於 step 的 `if:`
