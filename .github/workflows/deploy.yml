@@ -29,10 +29,16 @@ jobs:
       - run: npm ci
       # FB 瀏覽器 OAuth(D7):app id/組態 id 非機密,統一走 secret 選用注入;
       # 缺 secret = 降級建置(示範模式),不得失敗——CI 與本地無 env 路徑同規
+      # secrets context 不可用於 step if(文件 context availability 表),
+      # 條件判斷移入 shell:缺任一 secret = 不寫檔 = 降級建置(示範模式),不得失敗
       - name: Write optional FB env
-        if: ${{ secrets.FB_APP_ID != '' && secrets.FB_CONFIG_ID != '' }}
+        env:
+          FB_APP_ID: ${{ secrets.FB_APP_ID }}
+          FB_CONFIG_ID: ${{ secrets.FB_CONFIG_ID }}
         run: |
-          printf 'VITE_FB_APP_ID=%s\nVITE_FB_CONFIG_ID=%s\n' "${{ secrets.FB_APP_ID }}" "${{ secrets.FB_CONFIG_ID }}" > .env.production
+          if [ -n "$FB_APP_ID" ] && [ -n "$FB_CONFIG_ID" ]; then
+            printf 'VITE_FB_APP_ID=%s\nVITE_FB_CONFIG_ID=%s\n' "$FB_APP_ID" "$FB_CONFIG_ID" > .env.production
+          fi
       - run: npm test
       # build 內含 tsc -b 型別檢查,等同基本 CI 關卡
       - run: npm run build
