@@ -4,7 +4,7 @@
 
 TEXT-Message(文管庫)的家族產品:[文管庫](https://github.com/Galen-Chu/TEXT-Message)負責文字工作流(郵件→草稿→AI 改寫→發文),本產品負責媒體工作流。
 
-**狀態:M0+M1 已上線**——[正式站](https://galen-chu.github.io/MEDIA-Message/)啟用模式部署成功(2026-10-06),M1 真機驗收待執行(清單見 [`docs/SETUP.md`](docs/SETUP.md) §5)。產品規劃、平台能力查證與分期見 [`docs/M-PLAN.md`](docs/M-PLAN.md)。
+**狀態:M0+M1 已上線**——[正式站](https://galen-chu.github.io/MEDIA-Message/)啟用模式部署成功(2026-10-06),M1 真機驗收進行中(2026-10-08 連線與圖片發佈已通過,清單見 [`docs/SETUP.md`](docs/SETUP.md) §5)。產品規劃、平台能力查證與分期見 [`docs/M-PLAN.md`](docs/M-PLAN.md)。
 
 ## 平台支援(規劃)
 
@@ -60,7 +60,7 @@ docs/                  # M-PLAN(路線圖)、SETUP(串接與驗收手冊)、INCI
 
 ## 發展路線
 
-M0 ✅ → M1 FB 粉專媒體發佈(✅ 實作完成、待真機驗收)→ M2 YouTube(複製文管庫上傳模組)→ M3 Threads/IG(需公開網址,含圖床決策)→ 候選:媒體 AI(看媒體生成說明/圖片 AI 編修,零後端可行,待拍板)→ 遠期:聲音線。決策記錄 D1–D7 與各期細節見 [`docs/M-PLAN.md`](docs/M-PLAN.md)。
+M0 ✅ → M1 FB 粉專媒體發佈(✅ 實作完成;真機驗收進行中——連線/圖片已通過)→ M2 YouTube(複製文管庫上傳模組)→ M3 Threads/IG(需公開網址,含圖床決策)→ 候選:媒體 AI(看媒體生成說明/圖片 AI 編修,零後端可行,待拍板)→ 遠期:聲音線。決策記錄 D1–D7 與各期細節見 [`docs/M-PLAN.md`](docs/M-PLAN.md)。
 
 ## 文件導覽
 
