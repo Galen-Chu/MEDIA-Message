@@ -54,9 +54,10 @@ npm run test:e2e   # Playwright E2E(serve dist;跑之前先 npm run build)
 
 ## 開發待辦與優化清單
 
-**現況(2026-10-08)**:M0+M1 已上線(啟用模式部署成功、bundle 注入驗證);**M1 真機驗收進行中**——連線授權+圖片立即發佈已通過(2026-10-08),排程/影片/邊界待測(清單=`docs/SETUP.md` §5;首次實測關注:影片 file_type 是否限 mp4、瀏覽器直傳 graph-video 的 CORS)。
+**現況(2026-10-08)**:M0+M1 已上線(啟用模式部署成功、bundle 注入驗證);**M1 真機驗收進行中**——連線授權+圖片立即發佈已通過(2026-10-08),排程/影片/邊界待測(清單=`docs/SETUP.md` §5;首次實測關注:影片 file_type 是否限 mp4、瀏覽器直傳 `/{page-id}/videos` 的 CORS——2026-10-09 已改走 graph.facebook.com)。
 
 - **2026-10-06:CI 修復+文件體系建立。**①首次部署失敗=`secrets` 誤用於 step `if:`(workflow 檔層級被拒,零 jobs),改文管庫 proven 模式修復(commit `0d1cc13`),事故歸檔 `docs/INCIDENTS.md` 首篇;②secret 值經維護者重存後部署綠燈,bundle 探測確認 app id/config id 注入(正式站=啟用模式);③文件架構對齊文管庫:`M-PLAN.md` 遷 `docs/`、`SETUP.md`/`LICENSE` 建立、README/CLAUDE 補齊。
 - **2026-10-08:M1 真機驗收推進(三障排查+修法,程式零改動)。**①首障=JSSDK 開關未開(後台開啟即時生效);②二障=「不支援 response_type=token」→根因=舊組態 System-user 權杖類型,另建 **User access token 型組態**+維護者換 secret `FB_CONFIG_ID`+Actions 重跑部署(bundle 探測實證新組態 ID 上線);③三障=授權完成但 `/me/accounts` 回空清單→根因=粉專連結商業組合+token 缺 `business_management`(組態補勾即解)——**組態權限定案四項**(三 pages+business_management)。修法後連線+圖片立即發佈通過;實錄與排查方法歸檔 `docs/SETUP.md` §8,M-PLAN D7 組態條款同步改寫。餘:排程/影片/邊界三項驗收。
+- **2026-10-09:影片發佈主機更正(驗收前預防修)。**文管庫 session 交接指出 `graph-video.facebook.com` 疑已廢止→查當下官方文件確認(Video API 入門頁明載停用、改用 graph.facebook.com;發佈指南示例仍殘留舊主機,以停用公告為準)→刪 `FB_GRAPH_VIDEO_BASE`、發佈步改走 `FB_GRAPH_BASE`,測試斷言與 M-PLAN D7/SETUP §5 同步。同批交接其餘項(M2 GIS 抽離、M3 workaround 否決與拆期、container 輪詢、contrast-audit 進 CI、crypto 共用時機、平台劃界 IG/X 歸本庫)待維護者拍板。
 - 待辦排隊:M2 YouTube(複製文管庫 `services/youtube` 模組)→ M3 Threads/IG(hosted URL 穩定性先查證;**圖床=後端唯一觸發點**,屆時才建 `docs/BACKEND.md`)。
 - **候選(2026-10-06 評估,待維護者拍板)**:媒體 AI——一期「看媒體生成說明/標籤」(Gemini 多模態 BYOK 瀏覽器直呼)、二期「圖片 AI 編修」(生成式);評估結論=**零後端可行**,詳 M-PLAN §5 候選註記。

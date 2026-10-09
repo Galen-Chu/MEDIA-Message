@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FB_GRAPH_BASE, FB_GRAPH_VERSION, FB_GRAPH_VIDEO_BASE } from './config';
+import { FB_GRAPH_BASE, FB_GRAPH_VERSION } from './config';
 import { FacebookError } from './errors';
 import {
   listPages,
@@ -128,7 +128,7 @@ describe('影片三步(Resumable Upload API)', () => {
     expect(sessionId).toBe('upload:ABC123');
   });
 
-  it('③ publish:graph-video 主機,fbuploader_video_file_chunk=handle+description;排程帶 published=false', async () => {
+  it('③ publish:graph.facebook.com 主機(graph-video 已停用),fbuploader_video_file_chunk=handle+description;排程帶 published=false', async () => {
     const { calls, fetcher } = recorder(
       { json: { id: '987654' } },
       { json: { id: '987655' } },
@@ -143,7 +143,7 @@ describe('影片三步(Resumable Upload API)', () => {
       fetcher,
     );
     expect(r1).toEqual({ videoId: '987654' });
-    expect(calls[0]!.url).toBe(`${FB_GRAPH_VIDEO_BASE}/PAGE_1/videos`);
+    expect(calls[0]!.url).toBe(`https://graph.facebook.com/${FB_GRAPH_VERSION}/PAGE_1/videos`);
     expect(calls[0]!.init?.method).toBe('POST');
     let form = calls[0]!.init!.body as FormData;
     expect(form.get('access_token')).toBe('PAGE_T');

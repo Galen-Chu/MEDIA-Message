@@ -12,12 +12,12 @@
  * 3. 影片(現行 Resumable Upload API 三步,官方發佈指南):
  *    ① POST /{app-id}/uploads(file_name/file_length/file_type)→ upload session id
  *    ② POST /upload:{session}(Authorization: OAuth 標頭、file_offset 標頭、二進位 body)→ file handle
- *    ③ POST graph-video/{page-id}/videos(fbuploader_video_file_chunk=handle、description、排程參數)→ video id
+ *    ③ POST /{page-id}/videos(graph.facebook.com,graph-video 主機已停用見 config;fbuploader_video_file_chunk=handle、description、排程參數)→ video id
  *    https://developers.facebook.com/docs/graph-api/guides/upload
  *    https://developers.facebook.com/docs/video-api/guides/publishing
  *    https://developers.facebook.com/docs/graph-api/reference/page/videos/
  */
-import { FB_APP_ID, FB_GRAPH_BASE, FB_GRAPH_VIDEO_BASE } from './config';
+import { FB_APP_ID, FB_GRAPH_BASE } from './config';
 import { FacebookError, fromGraphResponse } from './errors';
 import { toScheduleSeconds } from './schedule';
 
@@ -178,7 +178,7 @@ export function uploadVideoBytes(opts: {
 }
 
 /**
- * 影片上傳③:發佈(POST graph-video/{page-id}/videos;file handle + 說明 + 排程)。
+ * 影片上傳③:發佈(POST /{page-id}/videos;file handle + 說明 + 排程)。
  * title 為選用參數,本產品說明單一欄位對應 description。
  */
 export async function publishVideo(
@@ -199,7 +199,7 @@ export async function publishVideo(
     form.append('published', 'false');
     form.append('scheduled_publish_time', toScheduleSeconds(opts.scheduledAtMs));
   }
-  const resp = await fetcher(`${FB_GRAPH_VIDEO_BASE}/${opts.pageId}/videos`, {
+  const resp = await fetcher(`${FB_GRAPH_BASE}/${opts.pageId}/videos`, {
     method: 'POST',
     body: form,
   });
