@@ -27,7 +27,7 @@
   命名比照文管庫「中文+英文後綴」,兩組成對:「編發器 Media ↔ 編發器 Text」、「媒庫 Library ↔ 文庫 Library」。發佈史=**時間軸**(發過什麼、何時發),媒庫=**可重複使用的素材**(下次發文拿來用的東西),兩頁職責不重疊。定排程/自媒體是否另拆,等 M2/M3 多平台後再議(§2 U5)。
 - **IA-D3 平台連線先留在編發器(建議採)**:M1 只有 FB,連線放發佈面板最順手;M2 YouTube 上線、連線數 ≥2 時,再評估比照文管庫抽出「自媒體 Social」連線中樞頁籤。
 - **IA-D4 家族串接採「明確契約鍵」,不互讀內部資料(建議採)**:兩產品同源、技術上可直接讀對方的 `text-message:v2`/`media-message:v1`,但**否決直接互讀**——那會把對方的內部 schema 變成自己的依賴,對方任一次遷移就連帶壞掉,違反「兩產品路線圖互不綁架」。改為另立小型、版本化、雙方文件都記載的契約鍵(`family:*:v1`),各自只寫自己產出的部分(§3.2)。
-- **IA-D5 串接分級推進,先低成本後高價值(建議採)**:L0 互相連結 → L1 說明素材交接 → L2 家族排程總覽 → L3 Gemini 金鑰共用(綁媒體 AI 候選,待該案拍板)。每級獨立可驗收,任一級可停。
+- **IA-D5 串接分級推進,先低成本後高價值(建議採)**:L0 互相連結 → L1 說明素材交接 → L2 家族排程總覽 → L3 Gemini 金鑰共用(綁媒體 AI 候選;屬跨產品 key 流動=**紅線層級變更**,須兩邊維護者另案拍板,文管庫已表明不會先行實作)。每級獨立可驗收,任一級可停。
 - **IA-D6 媒庫 Library 範圍(頁籤 2026-10-11 維護者定案;內容分區待拍板)**:維護者定調「串接+媒體資料儲存庫」,建議分三區:
   1. **家族區(串接)**:文管庫切換卡(L0)、「來自文管庫」交接收件匣(L1:文管庫送來的文案,一鍵帶入編發器說明)、家族排程摘要(L2)。
   2. **說明素材區**:說明範本與標籤組(存目前說明/套用至編發器/刪除),比照文管庫文庫「文案管理」的操作語彙;純本機、零依賴,U1 即可上線。
@@ -39,7 +39,7 @@
 | 期 | 內容 | 主要落點 | 跨 repo | 狀態 |
 | --- | --- | --- | --- | --- |
 | U1 | 版面殼層+四頁籤(IA-D1/D2):`Sidebar.tsx`、`activeTab`、Dashboard/發佈史頁、編發器兩欄、notice 改 toast;媒庫首版=說明素材區+家族切換卡(IA-D6 ①的 L0 部分、②);E2E smoke 改斷言新 IA;SETUP §5 步驟同步改寫 | `App.tsx`、新 `components/Sidebar.tsx`/`Dashboard.tsx`/`History.tsx`/`Library.tsx`、`services/library.ts`、`constants.ts`、`e2e/` | 否 | 待排程 |
-| U2 | 串接 L0 對稱化(IA-D7):兩邊側欄識別塊加常駐切換連結,位置/文案兩邊一致 | `Sidebar.tsx`(兩 repo) | 是(文管庫加一個連結) | 待文管庫確認 |
+| U2 | 串接 L0 對稱化(IA-D7):兩邊側欄識別塊加常駐切換連結,位置/文案兩邊一致 | `Sidebar.tsx`(兩 repo) | 是(文管庫加一個連結) | 待文管庫維護者拍板(2026-10-12 文管庫 session 已轉達;契約鍵路線 IA-D4 技術面獲認同) |
 | U3 | 串接 L1:說明素材交接(文管庫文庫/編發器「送至媒管庫」→ 本庫媒庫收件匣 → 帶入編發器;反向「存回文管庫文庫」另議) | 新 `services/family/handoff.ts`(兩 repo 各複製一份)+按鈕 | 是 | 待拍板 |
 | U4 | 串接 L2:家族排程總覽(各自發佈唯讀排程摘要,媒庫家族區+Dashboard 顯示對方的近期排程) | `services/family/feed.ts`、兩邊 Dashboard/Library | 是 | U3 驗證後再議 |
 | U5 | 頁籤隨平台擴充:M2 起評估「自媒體 Social」連線中樞/「定排程 Task」分拆;媒庫媒體資料區(metadata)隨發佈史資料量擴充;Drive 媒體檔庫=紅線修訂案,另案 | — | 否 | 隨 M2/M3 |
@@ -55,15 +55,20 @@
 ### 3.2 契約鍵草案(U3/U4;落地前兩 repo 各自在文件記載同一份)
 
 ```ts
-// family:handoff:v1 —— 一次性交接(寫入方產生、讀取方取用後即刪除)
-{ v: 1, from: 'text-message' | 'media-message', kind: 'caption', text: string, createdAt: number }
+// family:handoff:v1 —— 交接佇列(寫入方 append、讀取方逐筆取用即刪)
+{ v: 1, items: Array<{ id: string; from: 'text-message' | 'media-message';
+                       to: 'text-message' | 'media-message';
+                       kind: 'caption'; text: string; createdAt: number }> }
 
 // family:schedule-feed:<product>:v1 —— 唯讀排程摘要(只寫自己的,只讀對方的)
 { v: 1, product: 'media-message', updatedAt: number,
   items: Array<{ platform: string; when: number; snippet: string /* ≤60 字 */ }> }
 ```
 
-- 紅線不變:契約內**只有文字與 metadata**,媒體檔絕不進入;token 絕不進入。
+- **佇列而非單一物件(2026-10-12 依文管庫 session 回饋修訂)**:單一物件時連按兩次「送至」會無聲覆蓋前一筆、寫入端看不出來。改佇列後不需覆蓋確認框,也正好對應媒庫「收件匣」可列多筆的設計;上限 20 筆(超量淘汰最舊),寫入端只 append、讀取端只刪自己取用(`to` 為自己)的項目。
+- **陳舊判定(同上回饋)**:handoff 項目 `createdAt` 超過 **7 天**視為不存在並於讀取時刪除(避免幾週後冒出早已遺忘的文案);schedule-feed 一律標示「資料截至 <updatedAt>」,`updatedAt` 超過 7 天即隱藏該區塊。
+- 寫入失敗(配額滿)時兩邊提示都**不斷言是哪一個產品佔滿**——配額兩庫共用,只說「本機儲存空間已滿」。
+- 紅線不變:契約內**只有文字與 metadata**,媒體檔絕不進入;token、Gemini key、emails 絕不進入任何 `family:*` 鍵(兩邊同規,文管庫 2026-10-12 確認)。
 - 讀取端一律防禦式解析(版本不符/格式壞=當作不存在,功能隱藏而非報錯),與降級模式同精神。
 - 跳頁帶意圖:交接時以 hash 深連結(`/MEDIA-Message/#handoff`)開啟本庫並切到編發器;本庫目前無路由,U1 的 `activeTab` 宜預留「由 hash 初始化」能力。
 - 模組 storage 可注入(比照 `services/history.ts`),vitest 斷言完整寫入形狀與取用即刪。
