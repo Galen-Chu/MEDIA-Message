@@ -13,6 +13,7 @@ import {
   APP_TAGLINE,
   APP_TITLE,
   FB_ERROR_COPY,
+  NOTICE_HISTORY_NOT_SAVED,
   NOTICE_PUBLISHED,
   NOTICE_SCHEDULED,
 } from './constants';
@@ -67,33 +68,36 @@ export default function App() {
 
   const handlePublish = async () => {
     if (!file) return;
+    let outcome: Awaited<ReturnType<typeof fb.publish>>;
     try {
-      const outcome = await fb.publish({ file, caption, scheduledAtMs: scheduleAtMs });
-      const record: PublishRecord = {
-        id: crypto.randomUUID(),
-        platform: 'facebook',
-        mode,
-        mediaName: file.name,
-        mediaKind: outcome.kind,
-        mediaSize: file.size,
-        caption,
-        createdAt: Date.now(),
-        scheduledFor: mode === 'schedule' ? scheduleAtMs : null,
-        postId: outcome.postId ?? outcome.videoId ?? outcome.photoId ?? null,
-      };
-      setRecords(addRecord(record));
-      showNotice(
-        mode === 'schedule'
-          ? `${NOTICE_SCHEDULED}:${formatDateTime(scheduleAtMs)}`
-          : NOTICE_PUBLISHED,
-      );
-      removeFile();
-      setCaption('');
-      setMode('now');
-      setScheduleValue('');
+      outcome = await fb.publish({ file, caption, scheduledAtMs: scheduleAtMs });
     } catch {
       // 錯誤已由 hook 寫入 fb.error,面板顯示對應文案
+      return;
     }
+    // 以下為發佈成功後的記帳——不在 try 內:任何記帳問題都不得遮蔽「已發佈」結果
+    // (曾經的缺陷:歷史寫入配額滿拋錯被上方 catch 吞掉,畫面無反應→使用者重按→重複發佈)
+    const record: PublishRecord = {
+      id: crypto.randomUUID(),
+      platform: 'facebook',
+      mode,
+      mediaName: file.name,
+      mediaKind: outcome.kind,
+      mediaSize: file.size,
+      caption,
+      createdAt: Date.now(),
+      scheduledFor: mode === 'schedule' ? scheduleAtMs : null,
+      postId: outcome.postId ?? outcome.videoId ?? outcome.photoId ?? null,
+    };
+    const { records: nextRecords, saveFailed } = addRecord(record);
+    setRecords(nextRecords);
+    const doneText =
+      mode === 'schedule' ? `${NOTICE_SCHEDULED}:${formatDateTime(scheduleAtMs)}` : NOTICE_PUBLISHED;
+    showNotice(saveFailed ? `${doneText}${NOTICE_HISTORY_NOT_SAVED}` : doneText);
+    removeFile();
+    setCaption('');
+    setMode('now');
+    setScheduleValue('');
   };
 
   const errorText = fb.error

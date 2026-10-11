@@ -62,10 +62,20 @@ function parseStored(text: string | null): PublishRecord[] {
   }
 }
 
-function persist(records: PublishRecord[], storage: StorageLike | null): void {
-  if (!storage) return;
+/**
+ * 寫入 storage;失敗(配額滿等)回 false、不拋——呼叫端此時貼文已發佈成功,
+ * 記帳失敗不得遮蔽成功結果(拋出會被發佈流程的 catch 吞掉,誘發重複發佈)。
+ * 配額以「源」計:本產品與文管庫同在 galen-chu.github.io,共用同一份配額。
+ */
+function persist(records: PublishRecord[], storage: StorageLike | null): boolean {
+  if (!storage) return true; // 無 storage=歷史功能靜默停用,非寫入失敗
   const shape: HistoryStorageShape = { version: 1, records };
-  storage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(shape));
+  try {
+    storage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(shape));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** 載入歷史(損壞/不存在 → 空清單;無 localStorage 環境 → 空)。 */
@@ -78,11 +88,16 @@ export function loadHistory(storage: StorageLike | null = defaultStorage()): Pub
   }
 }
 
-/** 新增記錄(最新在前,超量淘汰最舊),回傳新清單。 */
-export function addRecord(record: PublishRecord, storage: StorageLike | null = defaultStorage()): PublishRecord[] {
-  const next = [record, ...loadHistory(storage)].slice(0, HISTORY_MAX_RECORDS);
-  persist(next, storage);
-  return next;
+/**
+ * 新增記錄(最新在前,超量淘汰最舊)。永不拋出:
+ * saveFailed=true 表示寫入 storage 失敗,新清單僅存在記憶體(本次工作階段可見)。
+ */
+export function addRecord(
+  record: PublishRecord,
+  storage: StorageLike | null = defaultStorage(),
+): { records: PublishRecord[]; saveFailed: boolean } {
+  const records = [record, ...loadHistory(storage)].slice(0, HISTORY_MAX_RECORDS);
+  return { records, saveFailed: !persist(records, storage) };
 }
 
 /** 清除歷史。 */

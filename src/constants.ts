@@ -74,6 +74,9 @@ export const FB_ERROR_COPY: Record<FacebookErrorCode, string> = {
 
 export const NOTICE_PUBLISHED = '已發佈!';
 export const NOTICE_SCHEDULED = '已排程,平台將於指定時間自動發佈';
+/** 發佈成功但歷史寫入失敗(瀏覽器儲存空間已滿)時附在成功提示後。 */
+export const NOTICE_HISTORY_NOT_SAVED =
+  '——貼文本身已成功發佈;但瀏覽器儲存空間已滿,這筆紀錄未能保存,重新整理後不會出現在發佈歷史';
 
 // ── 發佈歷史(僅 metadata 落地)──
 export const HISTORY_HEADING = '發佈歷史';

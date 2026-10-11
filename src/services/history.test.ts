@@ -33,8 +33,8 @@ describe('發佈歷史(僅 metadata 落地)', () => {
     const storage = fakeStorage();
     const first = record({ id: 'a', mediaName: 'a.png' });
     const second = record({ id: 'b', mediaName: 'b.mp4', mediaKind: 'video', mode: 'schedule', scheduledFor: 1767312000000, postId: '987' });
-    let list = addRecord(first, storage);
-    list = addRecord(second, storage);
+    let list = addRecord(first, storage).records;
+    list = addRecord(second, storage).records;
     expect(list.map((r) => r.id)).toEqual(['b', 'a']);
     expect(loadHistory(storage).map((r) => r.mediaName)).toEqual(['b.mp4', 'a.png']);
     // 紅線斷言:storage 內容只含 metadata 欄位(此處記錄本就無媒體內容,形狀守恆)
@@ -63,5 +63,27 @@ describe('發佈歷史(僅 metadata 落地)', () => {
     expect(list).toHaveLength(HISTORY_MAX_RECORDS);
     expect(list[0]!.id).toBe(`r${HISTORY_MAX_RECORDS + 2}`); // 最新在前
     expect(list[list.length - 1]!.id).toBe('r3'); // 最舊三筆被淘汰
+  });
+
+  it('寫入失敗(配額滿)不拋出:回 saveFailed=true,新清單仍含本筆供當次工作階段顯示', () => {
+    const storage = fakeStorage();
+    addRecord(record({ id: 'old' }), storage);
+    const full = {
+      ...storage,
+      setItem: () => {
+        throw new DOMException('quota', 'QuotaExceededError');
+      },
+    };
+    const result = addRecord(record({ id: 'new' }), full);
+    expect(result.saveFailed).toBe(true);
+    expect(result.records.map((r) => r.id)).toEqual(['new', 'old']);
+    // 既有已落地資料不受影響
+    expect(loadHistory(storage).map((r) => r.id)).toEqual(['old']);
+  });
+
+  it('正常寫入 saveFailed=false;無 storage 環境(歷史靜默停用)亦不視為失敗', () => {
+    expect(addRecord(record(), fakeStorage()).saveFailed).toBe(false);
+    const result = addRecord(record(), null);
+    expect(result).toEqual({ records: [record()], saveFailed: false });
   });
 });
