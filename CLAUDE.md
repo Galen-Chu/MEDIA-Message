@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-MEDIA-Message(媒管庫;repo Galen-Chu/MEDIA-Message)— 社群媒體**媒體發佈**工具:媒體為主、文字是說明。與 TEXT-Message(文管庫)為家族產品,技術骨架與慣例整套沿用文管庫(見下);**目前狀態:M0+M1 已上線——正式站啟用模式部署成功(2026-10-06,bundle 注入驗證);M1 真機驗收進行中(2026-10-08:連線授權+圖片發佈已通過,排程/影片/邊界待測;三障實錄=`docs/SETUP.md` §8)**,產品決策 D1–D7 定案見 `docs/M-PLAN.md` §4。
+MEDIA-Message(媒管庫;repo Galen-Chu/MEDIA-Message)— 社群媒體**媒體發佈**工具:媒體為主、文字是說明。與 TEXT-Message(文管庫)為家族產品,技術骨架與慣例整套沿用文管庫(見下);**目前狀態:M0+M1 已上線——正式站啟用模式部署成功(2026-10-06,bundle 注入驗證);M1 真機驗收進行中(2026-10-08 連線授權+圖片發佈通過;2026-10-19 影片首測遇 CORS→上傳路徑已改版、部署後複測;實錄=`docs/SETUP.md` §8)**,產品決策 D1–D7 定案見 `docs/M-PLAN.md` §4。
 
 ## 常用指令
 
@@ -15,7 +15,7 @@ npm run test:e2e   # Playwright E2E(serve dist;跑之前先 npm run build)
 
 - 前端:React 18 + TypeScript(strict)+ Vite 5(自文管庫複製的同版工具鏈);編輯器第一公民=媒體檔(本地檔案僅記憶體,落地僅 metadata)
 - `src/App.tsx` — 編輯器主頁:「附件為主、說明為輔」IA(媒體附件 → 說明 → 發佈 → 發佈歷史)
-- `src/services/facebook/` — M1 FB 粉專模組(**D7:瀏覽器端 OAuth、零後端、零 app secret**):`config`(env+Graph v26.0)/`sdk`(FB JS SDK 載入、`FB.login({config_id})` 回短效 user token)/`graph`(`/me/accounts` 錨定抽取 page id、photos multipart 直傳、影片 Resumable Upload API 三步;fetch 可注入)/`schedule`(排程時間窗純邏輯)/`errors`(Graph code 分類)
+- `src/services/facebook/` — M1 FB 粉專模組(**D7:瀏覽器端 OAuth、零後端、零 app secret**):`config`(env+Graph v26.0)/`sdk`(FB JS SDK 載入、`FB.login({config_id})` 回短效 user token)/`graph`(`/me/accounts` 錨定抽取 page id、photos multipart 直傳、影片 videos `source` multipart 單請求;fetch 可注入)/`schedule`(排程時間窗純邏輯)/`errors`(Graph code 分類)
 - `src/hooks/useFacebook.ts` — 連線狀態機(`disabled|disconnected|connecting|connected|error`;token 僅記憶體、過期導向重連);`publish` 統一入口(檔案驗證+排程驗證+分派圖/影片路徑+影片進度)
 - `src/services/history.ts` — 發佈歷史:僅 metadata 落地(localStorage `media-message:v1`,上限 200 筆,storage 可注入)
 - `src/components/` — `MediaPicker`(附件選檔+預覽)/`PublishPanel`(連線+粉專選擇+立即/排程+進度)/`HistoryCard`
@@ -55,12 +55,13 @@ npm run test:e2e   # Playwright E2E(serve dist;跑之前先 npm run build)
 
 ## 開發待辦與優化清單
 
-**現況(2026-10-12)**:M0+M1 已上線(啟用模式部署成功、bundle 注入驗證);IA 規劃收尾(`docs/IA-PLAN.md`,U1 待 M1 驗收後排程,U2–U4 待文管庫維護者拍板);**M1 真機驗收進行中**——連線授權+圖片立即發佈已通過(2026-10-08),排程/影片/邊界待測(清單=`docs/SETUP.md` §5;首次實測關注:影片 file_type 是否限 mp4、瀏覽器直傳 `/{page-id}/videos` 的 CORS——2026-10-09 已改走 graph.facebook.com)。
+**現況(2026-10-19)**:M0+M1 已上線(啟用模式部署成功、bundle 注入驗證);IA 規劃收尾(`docs/IA-PLAN.md`,U1 待 M1 驗收後排程,U2–U4 待文管庫維護者拍板);**M1 真機驗收進行中**——連線授權+圖片立即發佈已通過(2026-10-08);影片首測(2026-10-19)遇 CORS,上傳路徑已改版(見 10-19 條目),部署後複測;排程/邊界待測(清單=`docs/SETUP.md` §5)。
 
 - **2026-10-06:CI 修復+文件體系建立。**①首次部署失敗=`secrets` 誤用於 step `if:`(workflow 檔層級被拒,零 jobs),改文管庫 proven 模式修復(commit `0d1cc13`),事故歸檔 `docs/INCIDENTS.md` 首篇;②secret 值經維護者重存後部署綠燈,bundle 探測確認 app id/config id 注入(正式站=啟用模式);③文件架構對齊文管庫:`M-PLAN.md` 遷 `docs/`、`SETUP.md`/`LICENSE` 建立、README/CLAUDE 補齊。
 - **2026-10-08:M1 真機驗收推進(三障排查+修法,程式零改動)。**①首障=JSSDK 開關未開(後台開啟即時生效);②二障=「不支援 response_type=token」→根因=舊組態 System-user 權杖類型,另建 **User access token 型組態**+維護者換 secret `FB_CONFIG_ID`+Actions 重跑部署(bundle 探測實證新組態 ID 上線);③三障=授權完成但 `/me/accounts` 回空清單→根因=粉專連結商業組合+token 缺 `business_management`(組態補勾即解)——**組態權限定案四項**(三 pages+business_management)。修法後連線+圖片立即發佈通過;實錄與排查方法歸檔 `docs/SETUP.md` §8,M-PLAN D7 組態條款同步改寫。餘:排程/影片/邊界三項驗收。
 - **2026-10-09:影片發佈主機更正(驗收前預防修)。**文管庫 session 交接指出 `graph-video.facebook.com` 疑已廢止→查當下官方文件確認(Video API 入門頁明載停用、改用 graph.facebook.com;發佈指南示例仍殘留舊主機,以停用公告為準)→刪 `FB_GRAPH_VIDEO_BASE`、發佈步改走 `FB_GRAPH_BASE`,測試斷言與 M-PLAN D7/SETUP §5 同步。同批交接其餘項(M2 GIS 抽離、M3 workaround 否決與拆期、container 輪詢、contrast-audit 進 CI、crypto 共用時機、平台劃界 IG/X 歸本庫)待維護者拍板。
 - **2026-10-11~12:IA 規劃+配額缺陷修復。**①維護者提出版面對齊文管庫→`docs/IA-PLAN.md` 提案(四頁籤命名定案:媒管 Dashboard/編發器 Media/發佈史 History/媒庫 Library;同源契約鍵分級串接;建議 M1 驗收收尾後開工),家族切換對齊提案已送文管庫 session 待確認;②讀碼發現兩產品同源(galen-chu.github.io)共用 localStorage 配額,且歷史寫入配額滿時拋錯被發佈流程 catch 吞掉——貼文已發佈但畫面無反應、誘發重複發佈→修法:`history.persist` 攔截寫入例外、`addRecord` 改回 `{records, saveFailed}` 永不拋出、`App.handlePublish` 記帳移出 try 並於成功提示附註「紀錄未保存」。
 - **2026-10-12:IA 規劃收尾歸檔。**①文管庫 session 回饋三點全採納:`family:handoff:v1` 改佇列(上限 20,防連按無聲覆蓋)、handoff/schedule-feed 7 天陳舊判定、配額滿提示不斷言佔用方;契約鍵路線(IA-D4)技術面獲文管庫認同,U2–U4 文管庫側變更待其維護者拍板;②**IA-D8 定案**:跨產品敏感資料僅 Gemini 金鑰可共用(唯讀文管庫鍵,隨媒體 AI 上線),token/郵件內容不流動(理由:token 僅記憶體紅線+平台稽核說法、郵件無需求,且兩站公開、落地後難收回)——紅線節同步補列。下一步:M1 驗收收尾 → 排 U1 版面殼層。
+- **2026-10-19:影片上傳路徑改版(Resumable 三步→`source` 單請求)。**M1 驗收影片首測報「網路錯誤」——DevTools 實證 `POST /upload:{session}`(Resumable 二步)被 CORS 預檢擋下:此步依官方文件帶 `Authorization`+`file_offset` 自訂標頭必觸發預檢,該端點不回 `Access-Control-Allow-Origin`(第一步 `uploads` 正常完成=非後台問題;Meta 開發者社群同案,瀏覽器端無解)。修法=影片改 `POST /{page-id}/videos` 的 `source` multipart 單請求(v26.0 文件明載必填;與已驗證成功的圖片 photos 同構同主機):移除 `startVideoUpload`/`uploadVideoBytes`、新增 `buildVideoPublishRequest` 純函式(完整請求形狀測試)+XHR 進度;單請求無斷點續傳,短影片場景可接受。三關全綠(27 測/建置/E2E 2);M-PLAN D7 上傳路徑變更史、SETUP §5 第 4 項/§8 補記同步。部署後 §5 第 4 項複測。
 - 待辦排隊:M2 YouTube(複製文管庫 `services/youtube` 模組)→ M3 Threads/IG(hosted URL 穩定性先查證;**圖床=後端唯一觸發點**,屆時才建 `docs/BACKEND.md`)。
 - **候選(2026-10-06 評估,待維護者拍板)**:媒體 AI——一期「看媒體生成說明/標籤」(Gemini 多模態 BYOK 瀏覽器直呼)、二期「圖片 AI 編修」(生成式);評估結論=**零後端可行**,詳 M-PLAN §5 候選註記。

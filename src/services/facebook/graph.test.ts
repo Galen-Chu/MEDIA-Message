@@ -2,10 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { FB_GRAPH_BASE, FB_GRAPH_VERSION } from './config';
 import { FacebookError } from './errors';
 import {
+  buildVideoPublishRequest,
   listPages,
   publishPhoto,
-  publishVideo,
-  startVideoUpload,
   validatePhotoFile,
 } from './graph';
 
@@ -103,67 +102,41 @@ describe('publishPhoto(/{page-id}/photos multipart)', () => {
   });
 });
 
-describe('影片三步(Resumable Upload API)', () => {
-  it('① start:POST /{app-id}/uploads,file_name/file_length/file_type/access_token', async () => {
-    const { calls, fetcher } = recorder({ json: { id: 'upload:ABC123' } });
-    const sessionId = await startVideoUpload(
-      {
-        appId: '1808247027192643',
-        fileName: '短片.mp4',
-        fileLength: 1024,
-        fileType: 'video/mp4',
-        userAccessToken: 'USER_T',
-      },
-      fetcher,
-    );
-    const u = new URL(calls[0]!.url);
-    expect(`${u.origin}${u.pathname}`).toBe(`${FB_GRAPH_BASE}/1808247027192643/uploads`);
-    expect(calls[0]!.init?.method).toBe('POST');
-    const body = calls[0]!.init!.body as URLSearchParams;
-    expect(body).toBeInstanceOf(URLSearchParams);
-    expect(body.get('file_name')).toBe('短片.mp4');
-    expect(body.get('file_length')).toBe('1024');
-    expect(body.get('file_type')).toBe('video/mp4');
-    expect(body.get('access_token')).toBe('USER_T');
-    expect(sessionId).toBe('upload:ABC123');
-  });
+describe('buildVideoPublishRequest(/{page-id}/videos source multipart)', () => {
+  const file = new File([new Uint8Array([1, 2, 3])], '短片.mp4', { type: 'video/mp4' });
 
-  it('③ publish:graph.facebook.com 主機(graph-video 已停用),fbuploader_video_file_chunk=handle+description;排程帶 published=false', async () => {
-    const { calls, fetcher } = recorder(
-      { json: { id: '987654' } },
-      { json: { id: '987655' } },
-    );
-    const r1 = await publishVideo(
-      {
-        pageId: 'PAGE_1',
-        pageToken: 'PAGE_T',
-        fileHandle: '2:c2FtcGxl',
-        description: '影片說明',
-      },
-      fetcher,
-    );
-    expect(r1).toEqual({ videoId: '987654' });
-    expect(calls[0]!.url).toBe(`https://graph.facebook.com/${FB_GRAPH_VERSION}/PAGE_1/videos`);
-    expect(calls[0]!.init?.method).toBe('POST');
-    let form = calls[0]!.init!.body as FormData;
-    expect(form.get('access_token')).toBe('PAGE_T');
-    expect(form.get('fbuploader_video_file_chunk')).toBe('2:c2FtcGxl');
+  it('立即發佈:FormData 只有 source+description,token 走 query;graph.facebook.com 主機(graph-video 已停用)', () => {
+    const { url, form } = buildVideoPublishRequest({
+      pageId: 'PAGE_1',
+      pageToken: 'PAGE_T',
+      file,
+      description: '影片說明',
+    });
+    const u = new URL(url);
+    expect(`${u.origin}${u.pathname}`).toBe(`${FB_GRAPH_BASE}/PAGE_1/videos`);
+    expect(u.pathname).toContain(`/${FB_GRAPH_VERSION}/`);
+    expect(u.searchParams.get('access_token')).toBe('PAGE_T');
+    const source = form.get('source');
+    expect(source).toBeInstanceOf(File);
+    expect((source as File).name).toBe('短片.mp4');
+    expect((source as File).size).toBe(3);
     expect(form.get('description')).toBe('影片說明');
     expect(form.get('published')).toBeNull();
+    expect(form.get('scheduled_publish_time')).toBeNull();
+    // 2026-10-19 改版前的 Resumable 參數不再出現
+    expect(form.get('fbuploader_video_file_chunk')).toBeNull();
+  });
 
-    await publishVideo(
-      {
-        pageId: 'PAGE_1',
-        pageToken: 'PAGE_T',
-        fileHandle: '2:c2FtcGxl',
-        description: 'd',
-        scheduledAtMs: 1767225600000,
-      },
-      fetcher,
-    );
-    form = calls[1]!.init!.body as FormData;
+  it('排程:published=false + scheduled_publish_time(秒,int64 文件型別)', () => {
+    const { form } = buildVideoPublishRequest({
+      pageId: 'PAGE_1',
+      pageToken: 'PAGE_T',
+      file,
+      description: 'd',
+      scheduledAtMs: 1767225600123,
+    });
     expect(form.get('published')).toBe('false');
-    expect(form.get('scheduled_publish_time')).toBe('1767225600');
+    expect(form.get('scheduled_publish_time')).toBe('1767225600'); // 毫秒→秒,捨去
   });
 });
 

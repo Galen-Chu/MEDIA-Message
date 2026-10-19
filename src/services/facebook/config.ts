@@ -20,7 +20,7 @@ export const FB_ENABLED: boolean = FB_APP_ID.length > 0 && FB_CONFIG_ID.length >
 export const FB_GRAPH_VERSION = 'v26.0';
 
 /**
- * Graph API 主機(粉專清單 /me/accounts、圖片 photos、影片上傳三步全部走此處)。
+ * Graph API 主機(粉專清單 /me/accounts、圖片 photos、影片 videos 全部走此處)。
  * 2026-10-09 查證:graph-video.facebook.com 影片上傳主機已停用,一律改用 graph.facebook.com
  * (Video API 入門頁明載;發佈指南示例仍殘留舊主機,以停用公告為準)。
  * https://developers.facebook.com/docs/video-api/getting-started

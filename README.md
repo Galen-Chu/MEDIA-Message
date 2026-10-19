@@ -20,7 +20,7 @@ TEXT-Message(文管庫)的家族產品:[文管庫](https://github.com/Galen-Chu/
 | --- | --- |
 | 媒體附件 | 選擇本地圖片/影片檔(僅存記憶體,絕不落地),即時預覽與規則提示(圖片 ≤4MB、jpeg/bmp/png/gif/tiff) |
 | 說明 | 附件的說明文字(本產品「文字是說明」) |
-| 發佈——Facebook 粉專 | **瀏覽器端 OAuth 連線**(零後端、零 app secret;token 僅記憶體)→ 選粉專 → 立即發佈或排程(平台原生 `scheduled_publish_time`);影片走 Resumable 上傳三步並顯示進度 |
+| 發佈——Facebook 粉專 | **瀏覽器端 OAuth 連線**(零後端、零 app secret;token 僅記憶體)→ 選粉專 → 立即發佈或排程(平台原生 `scheduled_publish_time`);圖片/影片 multipart 直傳(XHR 上傳進度) |
 | 發佈歷史 | 僅 metadata(檔名/類型/大小/說明/時間)存於各自瀏覽器 localStorage |
 
 未設定 `VITE_FB_APP_ID` 的建置為**示範模式**(不出現連線按鈕),建置不會失敗。

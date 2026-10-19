@@ -12,7 +12,7 @@
 
 ## 1. 運作原理(1 分鐘版)
 
-**零後端**。FB JS SDK `FB.login({ config_id })` 在瀏覽器完成授權 → 回短效 user token(**僅存記憶體**,約 1–2 小時)→ 瀏覽器以 user token 呼叫 `/me/accounts` 取 page token → 瀏覽器**直傳** Graph API(圖片 multipart、影片 Resumable 三步)。排程一律走平台原生 `scheduled_publish_time`(上傳當下帶參數,**不必保存 token**)。
+**零後端**。FB JS SDK `FB.login({ config_id })` 在瀏覽器完成授權 → 回短效 user token(**僅存記憶體**,約 1–2 小時)→ 瀏覽器以 user token 呼叫 `/me/accounts` 取 page token → 瀏覽器**直傳** Graph API(圖片/影片皆 multipart 單請求直傳)。排程一律走平台原生 `scheduled_publish_time`(上傳當下帶參數,**不必保存 token**)。
 
 - 媒體檔**絕不落地、絕不經後端**——只存在瀏覽器記憶體;
 - localStorage 僅存發佈歷史 metadata(檔名/類型/大小/說明/時間,key `media-message:v1`);
@@ -50,7 +50,7 @@ npm run dev
 1. **連線授權**(✅ 2026-10-08):按「連接 Facebook」→ 登入 → 授權頁應**列出四項權限**(三個 pages 權限+`business_management`)→ 同意 → 顯示已連線與粉專名稱;
 2. **圖片立即發佈**(✅ 2026-10-08):選 ≤4MB 的 jpeg/png → 填說明 → 立即發佈 → 粉專出現貼文(圖+說明)→ 發佈歷史新增一筆;
 3. **排程**:選圖片 → 排程 → 選 10 分鐘後~75 天內 → 發佈 → 粉專後台「排定的貼文」出現;歷史記錄標記排程;
-4. **影片**:選短 .mp4 → 立即發佈 → 進度條跑完三階段(起始→上傳中→發佈)→ 粉專出現影片。**首次實測關注**:非 mp4 檔(.mov/.webm)是否被拒(錯誤訊息會顯示原因)、瀏覽器直傳 `/{page-id}/videos` 的 CORS(2026-10-09:graph-video 主機已停用,發佈步改走 graph.facebook.com——與圖片同主機,CORS 疑慮大幅降低);
+4. **影片**(2026-10-19 上傳路徑改版,部署後複測):選短 .mp4 → 立即發佈 → 進度條跑完 → 粉專出現影片。**改版緣由**:首測採的 Resumable 三步在二進位傳輸端點(`/upload:{session}`)被瀏覽器 CORS 預檢擋下(該端點不回 `Access-Control-Allow-Origin`,Meta 開發者社群同案;實錄見 §8 補記)→ 改為 `POST /{page-id}/videos` 的 `source` 單請求 multipart(與圖片同構,v26.0 文件明載)。**複測前 Ctrl+F5**;另觀察非 mp4 檔(.mov/.webm)是否被伺服器拒(錯誤訊息會顯示原因);
 5. **邊界行為**:>4MB 圖片 → 明確錯誤不上傳;排程選過去時間 → 被擋;**重整頁面回到未連線是預期行為**(token 僅記憶體,非 bug);
 6. 全數通過後:本節標 ✅+日期,M-PLAN M1 收尾歸檔。
 
@@ -62,9 +62,9 @@ Fork → 啟用自己 repo 的 Pages(§4.1)→ 建立自己的 Meta App 與商�
 
 本專案**沒有後端**。媒體檔僅存在瀏覽器記憶體,上傳時由瀏覽器**直接**送往該平台(FB);access token 僅存記憶體,關頁或中斷連線即消失。發佈歷史(metadata)存於各自瀏覽器的 localStorage,清除瀏覽器資料即重置。後續 AI 功能(規劃中)採 BYOK——媒體與指令由瀏覽器直接送往使用者自己金鑰的 AI 服務,同樣不經本專案任何伺服器。
 
-## 8. 串接實錄:瀏覽器端 FB OAuth 三障(2026-10-07~08 真機驗收)
+## 8. 串接實錄:瀏覽器端 FB 串接障礙(2026-10-07~19 真機驗收)
 
-M1 驗收連線階段連踩三個**後台組態層**障礙,程式碼零改動。照 §2 正確設定可全數避開;此處留檔根因與修法供排查複用。
+M1 驗收連線階段連踩三個**後台組態層**障礙(程式碼零改動,照 §2 正確設定可全數避開);影片首測另遇一個**程式路徑層**障礙(CORS,已改版修復,見表後補記)。此處留檔根因與修法供排查複用。
 
 | # | 現象(App 端) | 根因 | 修法 |
 | --- | --- | --- | --- |
@@ -73,3 +73,5 @@ M1 驗收連線階段連踩三個**後台組態層**障礙,程式碼零改動。
 | 3 | 授權完成、token 有效,App 報「找不到可發佈的粉專」;DevTools 看 `/me/accounts` 回空 `data` 陣列 | 粉專**連結商業組合**後,user token 缺 `business_management` 時 Graph 不回傳該粉專——授權頁三項 pages 權限齊全也一樣(Graph v17/v18 起行為,開發者社群多起同案) | 組態補勾 `business_management` → App「中斷連線」→ 重新連線(§2 第 2 步);即時生效 |
 
 **排查方法(可複用)**:錯誤文案先對照 `src/constants.ts` `FB_ERROR_COPY` 分類——`no_page` 僅在 API 成功回空清單時出現,可直接排除拒絕/網路;再以 DevTools(F12 → 網路 → 篩選 `accounts`)看實際回應,直接分辨「清單真空=設定/授權層」vs「有資料=程式解析層」;正式站設定疑慮以 bundle 探測實證(§4 驗證注入同法)。
+
+**補記:影片上傳「網路錯誤」=CORS(2026-10-19,程式路徑層)**:影片首測報「網路錯誤,請重試」,DevTools Console 實證 `POST /upload:{session}`(Resumable 二步)被 CORS 預檢擋下——此步依官方文件帶 `Authorization: OAuth`+`file_offset` 自訂標頭必觸發預檢,而該端點不回 `Access-Control-Allow-Origin`(Meta 開發者社群同案,瀏覽器端無解;第一步 `uploads` 正常完成,故非後台設定問題)。修法=上傳路徑改版:`/{page-id}/videos` 的 `source` 單請求 multipart(v26.0 文件明載必填,與已驗證的圖片 photos 路徑同構、同主機)。

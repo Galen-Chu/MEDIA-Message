@@ -9,15 +9,14 @@
  * 2. 圖片:POST /{page-id}/photos,source=multipart 直傳
  *    https://developers.facebook.com/docs/graph-api/reference/page/photos/
  *    ——圖檔 ≤4MB、格式 jpeg/bmp/png/gif/tiff;排程=published=false+scheduled_publish_time
- * 3. 影片(現行 Resumable Upload API 三步,官方發佈指南):
- *    ① POST /{app-id}/uploads(file_name/file_length/file_type)→ upload session id
- *    ② POST /upload:{session}(Authorization: OAuth 標頭、file_offset 標頭、二進位 body)→ file handle
- *    ③ POST /{page-id}/videos(graph.facebook.com,graph-video 主機已停用見 config;fbuploader_video_file_chunk=handle、description、排程參數)→ video id
- *    https://developers.facebook.com/docs/graph-api/guides/upload
- *    https://developers.facebook.com/docs/video-api/guides/publishing
+ * 3. 影片:POST /{page-id}/videos,source=multipart 單請求直傳(XHR 追蹤上傳進度)
  *    https://developers.facebook.com/docs/graph-api/reference/page/videos/
+ *    ——2026-10-19 真機驗收改版:原 Resumable Upload API 三步之第二步
+ *    POST /upload:{session}(Authorization+file_offset 自訂標頭)觸發 CORS 預檢,
+ *    該端點不回 Access-Control-Allow-Origin——瀏覽器端無解(Meta 開發者社群同案),
+ *    改為與圖片 photos 同構的 source multipart 單請求(v26.0 文件 source 明載必填)。
  */
-import { FB_APP_ID, FB_GRAPH_BASE } from './config';
+import { FB_GRAPH_BASE } from './config';
 import { FacebookError, fromGraphResponse } from './errors';
 import { toScheduleSeconds } from './schedule';
 
@@ -112,99 +111,68 @@ export async function publishPhoto(
   };
 }
 
-/** 影片上傳①:建立上傳 session(POST /{app-id}/uploads;user token)。 */
-export async function startVideoUpload(
-  opts: {
-    appId?: string;
-    fileName: string;
-    fileLength: number;
-    fileType: string;
-    userAccessToken: string;
-  },
-  fetcher: Fetcher = fetch,
-): Promise<string> {
-  const body = new URLSearchParams({
-    file_name: opts.fileName,
-    file_length: String(opts.fileLength),
-    file_type: opts.fileType,
-    access_token: opts.userAccessToken,
-  });
-  const resp = await fetcher(`${FB_GRAPH_BASE}/${opts.appId ?? FB_APP_ID}/uploads`, {
-    method: 'POST',
-    body,
-  });
-  const { data } = await readGraphJson(resp, 'video upload start');
-  // 回應形如 {"id":"upload:<SESSION_ID>"}
-  return requireString(data, 'id', 'video upload start');
+/** 組裝影片發佈請求(純邏輯;單元測試斷言完整請求形狀)。 */
+export function buildVideoPublishRequest(opts: {
+  pageId: string;
+  pageToken: string;
+  file: File;
+  description: string;
+  /** 有值=原生排程(published=false + scheduled_publish_time,秒;影片窗口 10 分鐘~6 個月)。 */
+  scheduledAtMs?: number;
+}): { url: string; form: FormData } {
+  const form = new FormData();
+  form.append('source', opts.file, opts.file.name);
+  form.append('description', opts.description);
+  if (typeof opts.scheduledAtMs === 'number') {
+    form.append('published', 'false');
+    form.append('scheduled_publish_time', toScheduleSeconds(opts.scheduledAtMs));
+  }
+  const url = `${FB_GRAPH_BASE}/${opts.pageId}/videos?access_token=${encodeURIComponent(opts.pageToken)}`;
+  return { url, form };
 }
 
 /**
- * 影片上傳②:傳輸二進位(POST /upload:{session};file_offset 標頭=位元組偏移)。
+ * 影片直傳:POST /{page-id}/videos(source=multipart 單請求;access_token 走 query 參數)。
  * fetch 無法追蹤上傳進度,故用 XHR(鏡像文管庫 YouTube 上傳);
- * 斷點續傳(v2):GET /upload:{session} 查詢當前 file_offset 後由此偏移續傳。
+ * 回應 id=video id;title 為選用參數,本產品說明單一欄位對應 description。
  */
-export function uploadVideoBytes(opts: {
-  sessionId: string;
-  userAccessToken: string;
-  file: Blob;
+export function publishVideo(opts: {
+  pageId: string;
+  pageToken: string;
+  file: File;
+  description: string;
+  scheduledAtMs?: number;
   onProgress?: (fraction: number) => void;
-}): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
+}): Promise<{ videoId: string }> {
+  const { url, form } = buildVideoPublishRequest(opts);
+  return new Promise<{ videoId: string }>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', `${FB_GRAPH_BASE}/${opts.sessionId}`);
-    xhr.setRequestHeader('Authorization', `OAuth ${opts.userAccessToken}`);
-    xhr.setRequestHeader('file_offset', '0');
-    xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+    xhr.open('POST', url);
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable && opts.onProgress) opts.onProgress(e.loaded / e.total);
     };
-    xhr.onerror = () => reject(new FacebookError('network', 'video transfer request failed'));
-    xhr.ontimeout = () => reject(new FacebookError('network', 'video transfer timed out'));
+    xhr.onerror = () => reject(new FacebookError('network', 'video upload request failed'));
+    xhr.ontimeout = () => reject(new FacebookError('network', 'video upload timed out'));
     xhr.onload = () => {
       if (xhr.status < 200 || xhr.status >= 300) {
         reject(fromGraphResponse(xhr.status, xhr.responseText ?? ''));
         return;
       }
       try {
-        const data = JSON.parse(xhr.responseText) as { h?: string };
-        if (!data.h) throw new Error('no h');
-        resolve(data.h);
+        const data = JSON.parse(xhr.responseText) as Record<string, unknown>;
+        if (typeof data.id !== 'string' || data.id.length === 0) throw new Error('missing id');
+        resolve({ videoId: data.id });
       } catch {
-        reject(new FacebookError('parse', 'cannot parse video file handle'));
+        reject(
+          new FacebookError(
+            'parse',
+            `facebook video publish bad response: ${(xhr.responseText ?? '').slice(0, 200)}`,
+          ),
+        );
       }
     };
-    xhr.send(opts.file);
+    xhr.send(form);
   });
-}
-
-/**
- * 影片上傳③:發佈(POST /{page-id}/videos;file handle + 說明 + 排程)。
- * title 為選用參數,本產品說明單一欄位對應 description。
- */
-export async function publishVideo(
-  opts: {
-    pageId: string;
-    pageToken: string;
-    fileHandle: string;
-    description: string;
-    scheduledAtMs?: number;
-  },
-  fetcher: Fetcher = fetch,
-): Promise<{ videoId: string }> {
-  const form = new FormData();
-  form.append('access_token', opts.pageToken);
-  form.append('fbuploader_video_file_chunk', opts.fileHandle);
-  form.append('description', opts.description);
-  if (typeof opts.scheduledAtMs === 'number') {
-    form.append('published', 'false');
-    form.append('scheduled_publish_time', toScheduleSeconds(opts.scheduledAtMs));
-  }
-  const resp = await fetcher(`${FB_GRAPH_BASE}/${opts.pageId}/videos`, {
-    method: 'POST',
-    body: form,
-  });
-  const { data } = await readGraphJson(resp, 'video publish');
-  return { videoId: requireString(data, 'id', 'video publish') };
 }
 
 /** Page Photos 文件明載的圖檔限制:.jpeg/.bmp/.png/.gif/.tiff、≤4MB(PNG 建議 ≤1MB 防縮圖失真)。 */

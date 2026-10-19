@@ -6,14 +6,12 @@
  * - page token 同樣僅記憶體;中斷連線即 FB.logout(盡力)
  */
 import { useCallback, useRef, useState } from 'react';
-import { FB_APP_ID, FB_ENABLED } from '../services/facebook/config';
+import { FB_ENABLED } from '../services/facebook/config';
 import { FacebookError, toFacebookError } from '../services/facebook/errors';
 import {
   listPages,
   publishPhoto,
   publishVideo,
-  startVideoUpload,
-  uploadVideoBytes,
   validatePhotoFile,
 } from '../services/facebook/graph';
 import type { FacebookPageCredential } from '../services/facebook/graph';
@@ -112,7 +110,7 @@ export function useFacebook() {
   }, [clearConnection]);
 
   /**
-   * 發佈(圖片=photos multipart;影片=Resumable Upload API 三步)。
+   * 發佈(圖片=photos multipart;影片=videos source multipart 單請求)。
    * 失敗抛 FacebookError 並同步寫入 error state 供面板顯示;
    * token 過期時清連線、狀態回 error,提示重新連線。
    */
@@ -172,25 +170,13 @@ export function useFacebook() {
           });
           return { kind, photoId: r.photoId, postId: r.postId };
         }
-        const sessionId = await startVideoUpload({
-          appId: FB_APP_ID,
-          fileName: input.file.name,
-          fileLength: input.file.size,
-          fileType: input.file.type || 'application/octet-stream',
-          userAccessToken: userToken.accessToken,
-        });
-        const fileHandle = await uploadVideoBytes({
-          sessionId,
-          userAccessToken: userToken.accessToken,
-          file: input.file,
-          onProgress: setProgress,
-        });
         const r = await publishVideo({
           pageId,
           pageToken,
-          fileHandle,
+          file: input.file,
           description: input.caption,
           scheduledAtMs: input.scheduledAtMs ?? undefined,
+          onProgress: setProgress,
         });
         return { kind, videoId: r.videoId };
       } catch (err) {
