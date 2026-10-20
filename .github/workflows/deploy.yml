@@ -21,8 +21,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      # action runtime 對齊文管庫 2026-10-14 升級組合(ubuntu-latest 已於 2026-10-19 遷 Ubuntu 26;
+      # playwright 1.62.1 的 nativeDeps 已涵蓋 ubuntu26.04,升級行為不變)
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -45,9 +47,9 @@ jobs:
       # E2E smoke 跑在 preview server;通過才部署(驗收站品質閘門)
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
