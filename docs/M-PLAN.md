@@ -51,7 +51,7 @@
 ## 5. 分期
 
 - **M0(✅ 2026-10-05 完成)**:repo 與文件(M-PLAN/CLAUDE.md/README)+ scaffold(Vite + TS strict + vitest + Playwright E2E smoke + CI/Pages workflows;工具鏈與設計系統自文管庫複製,詳見 CLAUDE.md 架構節)
-- **M1(✅ 2026-10-05 實作完成;2026-10-06 正式站啟用模式部署成功、bundle 注入驗證;真機驗收進行中——2026-10-08 連線授權+圖片立即發佈通過(前置三障=後台組態層、零程式改動,實錄 `docs/SETUP.md` §8);2026-10-19 影片首測遇 CORS→上傳路徑改版(見 D7),部署後複測;排程/邊界待測)**:FB 粉專媒體發佈——圖片直傳(`source` multipart)、影片直傳(`source` multipart 單請求,2026-10-19 改版)、`scheduled_publish_time` 原生排程、發佈歷史(僅 metadata);編輯器「附件為主、說明為輔」IA 首版
+- **M1(✅ 2026-10-05 實作完成;2026-10-06 正式站啟用模式部署成功、bundle 注入驗證;真機驗收進行中——2026-10-08 連線授權+圖片立即發佈通過(前置三障=後台組態層、零程式改動,實錄 `docs/SETUP.md` §8);2026-10-19 影片首測遇 CORS→上傳路徑改版(見 D7),2026-10-20 部署複測通過;排程/邊界待測)**:FB 粉專媒體發佈——圖片直傳(`source` multipart)、影片直傳(`source` multipart 單請求,2026-10-19 改版)、`scheduled_publish_time` 原生排程、發佈歷史(僅 metadata);編輯器「附件為主、說明為輔」IA 首版
 - **M2:YouTube**——複製文管庫 `services/youtube` 模組(gis/uploadApi/video),配合本產品 IA 調整
 - **M3:Threads/IG**——前置查證:unpublished-photo hosted URL 的穩定性;可行則以組合流程實作(直傳 FB 拿 URL→餵 container),不可行則圖床決策(觸發 D3 後段/新期)
 - **候選(2026-10-06 評估,待維護者拍板):媒體 AI**——一期「看媒體生成說明/標籤」(Gemini 多模態,BYOK 瀏覽器直呼,圖 inline ≤20MB 請求上限內)、二期「圖片 AI 編修」(Gemini 2.5 Flash Image 生成式改圖);評估結論=**零後端可行**(編輯已發佈說明=平台 API 瀏覽器直呼;媒體檔編輯=Canvas/WebCodecs 純瀏覽器;影片 AI 編輯今日不實際)。資料邊界:BYOK=媒體直送使用者金鑰的 AI 服務,UI 須誠實標示;金鑰可選用文管庫已設定者(2026-10-12 定案,`docs/IA-PLAN.md` IA-D8)。拍板後正式入分期與 D 編號
