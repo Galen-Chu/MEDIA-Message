@@ -1,4 +1,4 @@
-import type { MediaKind } from './types';
+import type { MediaKind, TabKey } from './types';
 import type { FacebookErrorCode } from './services/facebook/errors';
 import type { FacebookStatus } from './hooks/useFacebook';
 
@@ -86,3 +86,66 @@ export const HISTORY_CLEAR = '清除歷史';
 export const HISTORY_CLEAR_CONFIRM = '確定清除所有發佈歷史?(僅清除本機 metadata 記錄,已發佈內容不受影響)';
 export const HISTORY_STATUS_SCHEDULED = '排程中';
 export const HISTORY_STATUS_PUBLISHED = '已發佈';
+
+// ── 版面殼層(U1:側欄四頁籤,docs/IA-PLAN.md IA-D1/D2)──
+export const SIDEBAR_IDENTITY_SUB = '社群媒體媒體發佈工具';
+export const TAB_LABELS: Record<TabKey, string> = {
+  dashboard: '媒管 Dashboard',
+  media: '編發器 Media',
+  history: '發佈史 History',
+  library: '媒庫 Library',
+};
+export const TAB_ICONS: Record<TabKey, string> = {
+  dashboard: '🏠',
+  media: '🎬',
+  history: '📅',
+  library: '🗂️',
+};
+
+// ── 媒管 Dashboard(統計由發佈歷史 metadata 即時計算)──
+export const DASH_STATS_HEADING = '發佈統計';
+export const DASH_STAT_PUBLISHED_MONTH = '本月已發佈';
+export const DASH_STAT_PENDING = '待發排程';
+export const DASH_STAT_IMAGES = '圖片數';
+export const DASH_STAT_VIDEOS = '影片數';
+export const DASH_CONNECT_HEADING = '連線狀態';
+export const DASH_FB_CONNECTED = 'Facebook 已連線';
+export const DASH_FB_NOT_CONNECTED = 'Facebook 未連線——到編發器連線後即可發佈';
+export const DASH_START_BUTTON = '開始發佈';
+export const DASH_UPCOMING_HEADING = '近期排程';
+export const DASH_UPCOMING_EMPTY = '沒有待發的排程';
+
+// ── 發佈史頁(篩選與排程狀態)──
+export const HISTORY_FILTER_MODE_LABEL = '發佈方式';
+export const HISTORY_FILTER_KIND_LABEL = '媒體類型';
+export const HISTORY_FILTER_ALL = '全部';
+export const HISTORY_FILTER_NOW = '立即';
+export const HISTORY_FILTER_SCHEDULE = '排程';
+export const HISTORY_FILTER_IMAGE = '圖片';
+export const HISTORY_FILTER_VIDEO = '影片';
+export const HISTORY_FILTER_EMPTY = '沒有符合篩選條件的記錄';
+/** 排程記錄依排定時間與現在比較的狀態標籤。 */
+export const HISTORY_STATE_PENDING = '待發';
+export const HISTORY_STATE_DUE = '應已發佈';
+
+// ── 媒庫頁(U1 首版=說明素材+家族切換卡,docs/IA-PLAN.md IA-D6)──
+export const LIB_TEMPLATE_HEADING = '說明素材';
+export const LIB_TEMPLATE_HINT =
+  '儲存常用說明與標籤組(標籤組=只放標籤的範本),一鍵套用到編發器說明。純本機 localStorage;媒體檔絕不落地,媒庫只存文字素材。';
+export const LIB_TEMPLATE_SAVE = '儲存目前說明';
+export const LIB_TEMPLATE_SAVE_EMPTY_TITLE = '編發器的說明是空的——先到編發器撰寫,再回來儲存';
+export const LIB_TEMPLATE_APPLY = '套用到編發器';
+export const LIB_TEMPLATE_DELETE = '刪除';
+export const LIB_TEMPLATE_DELETE_CONFIRM = '刪除這筆說明素材?';
+export const LIB_TEMPLATE_EMPTY = '還沒有儲存的說明素材——在編發器寫好說明後,回這裡按「儲存目前說明」';
+export const LIB_TEMPLATE_SAVED_NOTICE = '已儲存至說明素材';
+/** 儲存時配額滿的誠實提示尾句(與發佈歷史同款)。 */
+export const LIB_TEMPLATE_SAVE_FAILED = '——但瀏覽器儲存空間已滿,這筆素材未能保存';
+export const LIB_TEMPLATE_APPLIED_NOTICE = '已套用到編發器說明,並切換至編發器';
+export const LIB_FAMILY_HEADING = '家族';
+export const LIB_FAMILY_HINT =
+  '文管庫(TEXT-Message)負責文字工作流(郵件→草稿→發文),媒管庫負責媒體工作流——家族產品、資料互不流動。';
+export const LIB_FAMILY_LINK = '前往文管庫 ↗';
+export const LIB_FAMILY_URL = 'https://galen-chu.github.io/TEXT-Message/';
+export const LIB_FUTURE_NOTE =
+  '說明交接與排程摘要(家族串接 L1/L2)與媒體 metadata 區屬後續期次(docs/IA-PLAN.md U3–U5)。';

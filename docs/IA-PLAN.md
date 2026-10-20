@@ -1,6 +1,6 @@
 # IA 規劃(版面對齊文管庫+家族串接)
 
-2026-10-11 維護者提出(M1 真機驗收同步進行中):介面排版向文管庫(TEXT-Message)看齊,並評估功能頁籤與文管庫同步/串接。本文件為**提案**——各決策標註「建議採/待拍板/定案+日期」,拍板後就地更新(已定:2026-10-11 頁籤命名「發佈史 History」「媒庫 Library」;2026-10-12 IA-D8 跨產品敏感資料邊界。**2026-10-12 規劃收尾歸檔**——U1 待 M1 驗收收尾後排程,U2–U4 待文管庫維護者拍板);開發排程另定,不阻塞 M1 驗收。格式沿用文管庫 `docs/IA-PLAN.md`(決策→分期→技術要點)。
+2026-10-11 維護者提出(M1 真機驗收同步進行中):介面排版向文管庫(TEXT-Message)看齊,並評估功能頁籤與文管庫同步/串接。本文件為**提案**——各決策標註「建議採/待拍板/定案+日期」,拍板後就地更新(已定:2026-10-11 頁籤命名「發佈史 History」「媒庫 Library」;2026-10-12 IA-D8 跨產品敏感資料邊界。**2026-10-12 規劃收尾歸檔**;**2026-10-20 U1 開發完成**——維護者指示「工具鏈對齊+U1」提前開工(見 §2 狀態),三關全綠 49 測/建置/E2E 3,隨下批 push 上線;U2–U4 待文管庫維護者拍板)。格式沿用文管庫 `docs/IA-PLAN.md`(決策→分期→技術要點)。
 
 ## 0. 現況對照(2026-10-11 讀兩 repo 程式碼)
 
@@ -43,7 +43,7 @@
 
 | 期 | 內容 | 主要落點 | 跨 repo | 狀態 |
 | --- | --- | --- | --- | --- |
-| U1 | 版面殼層+四頁籤(IA-D1/D2):`Sidebar.tsx`、`activeTab`、Dashboard/發佈史頁、編發器兩欄、notice 改 toast;媒庫首版=說明素材區+家族切換卡(IA-D6 ①的 L0 部分、②);E2E smoke 改斷言新 IA;SETUP §5 步驟同步改寫 | `App.tsx`、新 `components/Sidebar.tsx`/`Dashboard.tsx`/`History.tsx`/`Library.tsx`、`services/library.ts`、`constants.ts`、`e2e/` | 否 | 待排程 |
+| U1 | 版面殼層+四頁籤(IA-D1/D2):`Sidebar.tsx`、`activeTab`、Dashboard/發佈史頁、編發器兩欄、notice 改 toast;媒庫首版=說明素材區+家族切換卡(IA-D6 ①的 L0 部分、②);E2E smoke 改斷言新 IA;SETUP §5 步驟同步改寫 | `App.tsx`、新 `components/Sidebar.tsx`/`Dashboard.tsx`/`History.tsx`/`Library.tsx`、`services/library.ts`、`constants.ts`、`e2e/` | 否 | ✅ 2026-10-20 開發完成(三關全綠 49 測/建置/E2E 3;隨下批 push 上線) |
 | U2 | 串接 L0 對稱化(IA-D7):兩邊側欄識別塊加常駐切換連結,位置/文案兩邊一致 | `Sidebar.tsx`(兩 repo) | 是(文管庫加一個連結) | 待文管庫維護者拍板(2026-10-12 文管庫 session 已轉達;契約鍵路線 IA-D4 技術面獲認同) |
 | U3 | 串接 L1:說明素材交接(文管庫文庫/編發器「送至媒管庫」→ 本庫媒庫收件匣 → 帶入編發器;反向「存回文管庫文庫」另議) | 新 `services/family/handoff.ts`(兩 repo 各複製一份)+按鈕 | 是 | 待拍板 |
 | U4 | 串接 L2:家族排程總覽(各自發佈唯讀排程摘要,媒庫家族區+Dashboard 顯示對方的近期排程) | `services/family/feed.ts`、兩邊 Dashboard/Library | 是 | U3 驗證後再議 |

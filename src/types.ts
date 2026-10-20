@@ -6,3 +6,6 @@ export type MediaKind = 'image' | 'video' | 'audio' | 'other';
 
 /** 發佈模式:立即 or 平台原生排程(D4:排程一律平台原生)。 */
 export type PublishMode = 'now' | 'schedule';
+
+/** 版面頁籤(U1 側欄四頁籤,docs/IA-PLAN.md IA-D2)。 */
+export type TabKey = 'dashboard' | 'media' | 'history' | 'library';
