@@ -144,7 +144,7 @@ export const LIB_TEMPLATE_SAVE_FAILED = '——但瀏覽器儲存空間已滿,�
 export const LIB_TEMPLATE_APPLIED_NOTICE = '已套用到編發器說明,並切換至編發器';
 export const LIB_FAMILY_HEADING = '家族';
 export const LIB_FAMILY_HINT =
-  '文管庫(TEXT-Message)負責文字工作流(郵件→草稿→發文),媒管庫負責媒體工作流——家族產品、資料互不流動。';
+  '文管庫(TEXT-Message)負責文字工作流(郵件→草稿→發文),媒管庫負責媒體工作流。文管庫的文案可以「送至媒管庫」當說明——兩邊只交換文字,媒體檔、平台 token、郵件內容不流動。';
 export const LIB_FAMILY_LINK = '前往文管庫 ↗';
 /** 家族產品(文管庫)網址:側欄常駐切換與媒庫家族卡共用。 */
 export const FAMILY_PEER_URL = 'https://galen-chu.github.io/TEXT-Message/';
@@ -152,4 +152,21 @@ export const FAMILY_PEER_URL = 'https://galen-chu.github.io/TEXT-Message/';
 export const SIDEBAR_FAMILY_LINK = '文管庫 ↗';
 export const SIDEBAR_FAMILY_TITLE = '前往文管庫(文字發文:郵件→草稿→發佈)';
 export const LIB_FUTURE_NOTE =
-  '說明交接與排程摘要(家族串接 L1/L2)與媒體 metadata 區屬後續期次(docs/IA-PLAN.md U3–U5)。';
+  '排程摘要(家族串接 L2)與媒體 metadata 區屬後續期次(docs/IA-PLAN.md U4–U5)。';
+
+// ── 媒庫收件匣(U3:文管庫「送至媒管庫」的文案;契約 family:handoff:v1,IA-PLAN §3.2)──
+export const INBOX_HEADING = '來自文管庫';
+export const INBOX_HINT = '文管庫按「送至媒管庫」的文案會出現在這裡;取用(套用/存為素材/捨棄)後即從收件匣移除,超過 7 天未取用自動失效。';
+export const INBOX_EMPTY = '收件匣目前沒有來自文管庫的文案——在文管庫按「送至媒管庫」就會出現在這裡(超過 7 天未取用自動失效)。';
+export const INBOX_APPLY = '套用到編發器';
+export const INBOX_SAVE = '存為說明素材';
+export const INBOX_DISMISS = '捨棄';
+export const INBOX_DISMISS_CONFIRM = '捨棄這筆來自文管庫的文案?(文管庫端的原稿不受影響)';
+export const INBOX_SENT_AT = (when: string) => `文管庫送出於 ${when}`;
+export const INBOX_APPLIED_NOTICE = '已把文管庫的文案帶入編發器說明';
+export const INBOX_SAVED_NOTICE = '已存為說明素材';
+export const INBOX_DISMISSED_NOTICE = '已捨棄';
+/** 取用後寫回佇列失敗(配額滿)的誠實提示尾句:該筆重新整理後會再出現。 */
+export const INBOX_REMOVE_FAILED = '——但瀏覽器儲存空間已滿,未能從收件匣移除,重新整理後會再出現';
+/** 側欄媒庫頁籤的待取用數徽章(螢幕閱讀器用的完整說法)。 */
+export const INBOX_BADGE_LABEL = (n: number) => `收件匣有 ${n} 筆來自文管庫的文案`;

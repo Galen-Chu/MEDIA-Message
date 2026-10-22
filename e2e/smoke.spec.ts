@@ -62,3 +62,61 @@ test('頁籤導航:發佈史與媒庫頁', async ({ page }) => {
     'https://galen-chu.github.io/TEXT-Message/',
   );
 });
+
+// U3 收件匣:以文管庫 sendCaptionToPeer 實際寫入的形狀注入 family:handoff:v1(契約 IA-PLAN §3.2)
+const HANDOFF_KEY = 'family:handoff:v1';
+function handoffQueue(items: Array<{ id: string; text: string; to?: string }>) {
+  return JSON.stringify({
+    v: 1,
+    items: items.map((i) => ({
+      id: i.id,
+      from: 'text-message',
+      to: i.to ?? 'media-message',
+      kind: 'caption',
+      text: i.text,
+      createdAt: Date.now(),
+    })),
+  });
+}
+
+test('U3 收件匣:#handoff 落媒庫、徽章計數、套用後帶入說明並移出佇列', async ({ page }) => {
+  const queue = handoffQueue([
+    { id: 'h1', text: '文管庫送來的第一段文案' },
+    { id: 'toText', text: '送往文管庫的(不該出現)', to: 'text-message' },
+  ]);
+  await page.goto(PATH);
+  await page.evaluate(([k, v]) => localStorage.setItem(k, v), [HANDOFF_KEY, queue] as const);
+  await page.goto(`${PATH}#handoff`);
+  await page.reload();
+
+  await expect(page.getByRole('heading', { level: 1, name: /媒庫/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '來自文管庫(1)' })).toBeVisible();
+  await expect(page.getByText('文管庫送來的第一段文案')).toBeVisible();
+  await expect(page.getByText('送往文管庫的(不該出現)')).toHaveCount(0);
+  await expect(page.getByLabel('收件匣有 1 筆來自文管庫的文案')).toBeVisible();
+
+  await page.getByRole('button', { name: '套用到編發器' }).first().click();
+  await expect(page.getByRole('heading', { level: 1, name: /編發器/ })).toBeVisible();
+  await expect(page.getByRole('textbox', { name: '說明' })).toHaveValue('文管庫送來的第一段文案');
+  await expect(page.getByLabel(/收件匣有/)).toHaveCount(0);
+  // 只移除取用的那筆;送往文管庫的項目原封不動
+  const left = await page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? '{}'), HANDOFF_KEY);
+  expect(left.items.map((i: { id: string }) => i.id)).toEqual(['toText']);
+});
+
+test('U3 收件匣:文管庫分頁送出時即時更新(storage 事件)', async ({ context }) => {
+  const media = await context.newPage();
+  await media.goto(`${PATH}#library`);
+  await expect(media.getByText('收件匣目前沒有來自文管庫的文案', { exact: false })).toBeVisible();
+
+  // 另一分頁(同源)寫入佇列=模擬文管庫按「送至媒管庫」
+  const peer = await context.newPage();
+  await peer.goto(PATH);
+  await peer.evaluate(
+    ([k, v]) => localStorage.setItem(k, v),
+    [HANDOFF_KEY, handoffQueue([{ id: 'live', text: '即時送達的文案' }])] as const,
+  );
+
+  await expect(media.getByRole('heading', { name: '來自文管庫(1)' })).toBeVisible();
+  await expect(media.getByText('即時送達的文案')).toBeVisible();
+});

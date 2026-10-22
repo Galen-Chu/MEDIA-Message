@@ -110,6 +110,7 @@ export default function MediaPicker({
         </h2>
         <p style={{ margin: '0 0 10px', fontSize: 12.5, color: 'var(--text-weak)' }}>{CAPTION_HINT}</p>
         <textarea
+          aria-labelledby="caption-heading"
           className="text-input"
           rows={3}
           value={caption}

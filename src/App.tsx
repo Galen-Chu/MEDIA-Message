@@ -3,7 +3,9 @@
  * 🏠媒管 Dashboard / 🎬編發器 Media / 📅發佈史 History / 🗂️媒庫 Library。
  * 編輯器狀態(file/previewUrl/caption/mode/scheduleValue)刻意留在 App 層——
  * 切頁籤不遺失選好的檔案與說明、上傳中切頁不中斷(IA-PLAN §3.3);狀態量小,不加全域 store。
- * activeTab 由 hash 初始化並聆聽 hashchange(#media 等深連結,IA-PLAN §3.2)。
+ * activeTab 由 hash 初始化並聆聽 hashchange(#media 等深連結,IA-PLAN §3.2;
+ * #handoff=文管庫「送至媒管庫」後開站的入口,落媒庫收件匣)。
+ * 收件匣(U3)狀態也在 App 層:側欄徽章與媒庫頁共用;文管庫分頁送出時經 storage 事件即時更新。
  * 媒體檔僅存瀏覽器記憶體(預覽用 URL.createObjectURL,替換/卸載即 revoke);
  * localStorage 僅存發佈歷史 metadata 與媒庫說明素材(皆純文字)。
  */
@@ -26,6 +28,8 @@ import {
   TAB_LABELS,
 } from './constants';
 import { useFacebook } from './hooks/useFacebook';
+import { HANDOFF_KEY } from './services/family/config';
+import { loadInbox, type HandoffItem } from './services/family/handoff';
 import { addRecord, clearHistory, loadHistory } from './services/history';
 import type { PublishRecord } from './services/history';
 import type { TabKey } from './types';
@@ -34,9 +38,13 @@ import { formatDateTime } from './utils/format';
 
 const TAB_KEYS: readonly TabKey[] = ['dashboard', 'media', 'history', 'library'];
 
-/** hash → 頁籤(未知 hash 落 Dashboard;#media 深連結直達編發器)。 */
+/**
+ * hash → 頁籤(未知 hash 落 Dashboard;#media 深連結直達編發器)。
+ * #handoff 是與文管庫的契約入口(其 PEER_HANDOFF_URL),對應媒庫收件匣。
+ */
 function tabFromHash(): TabKey {
   const hash = window.location.hash.replace(/^#/, '');
+  if (hash === 'handoff') return 'library';
   return (TAB_KEYS as readonly string[]).includes(hash) ? (hash as TabKey) : 'dashboard';
 }
 
@@ -50,14 +58,33 @@ export default function App() {
   const [mode, setMode] = useState<'now' | 'schedule'>('now');
   const [scheduleValue, setScheduleValue] = useState('');
   const [records, setRecords] = useState<PublishRecord[]>(() => loadHistory());
+  const [inbox, setInbox] = useState<HandoffItem[]>(() => loadInbox());
   const [notice, setNotice] = useState<string | null>(null);
   const noticeTimer = useRef<number | null>(null);
 
   // hash 深連結:外部(文管庫家族卡、書籤)以 #media 等開啟時切到對應頁籤
   useEffect(() => {
-    const onHashChange = () => setTab(tabFromHash());
+    const onHashChange = () => {
+      setTab(tabFromHash());
+      setInbox(loadInbox());
+    };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  // 收件匣即時更新:storage 事件只在「其他分頁」寫入時觸發——正是文管庫分頁按送出的情境;
+  // key=null 表示對方整個 clear()。回到本分頁(focus)時再讀一次作備援。
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === HANDOFF_KEY || e.key === null) setInbox(loadInbox());
+    };
+    const onFocus = () => setInbox(loadInbox());
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('focus', onFocus);
+    return () => {
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener('focus', onFocus);
+    };
   }, []);
 
   // 卸載時釋放預覽 URL
@@ -131,11 +158,11 @@ export default function App() {
     setScheduleValue('');
   };
 
-  // 媒庫套用素材:附加到現有說明之後(不覆蓋已寫內容),並帶往編發器
-  const applyTemplate = (text: string) => {
+  // 媒庫套用素材/收件匣文案:附加到現有說明之後(不覆蓋已寫內容),並帶往編發器
+  const applyToCaption = (text: string, noticeText: string = LIB_TEMPLATE_APPLIED_NOTICE) => {
     setCaption((prev) => (prev.trim() ? `${prev.trimEnd()} ${text}` : text));
     gotoTab('media');
-    showNotice(LIB_TEMPLATE_APPLIED_NOTICE);
+    showNotice(noticeText);
   };
 
   const errorText = fb.error
@@ -148,7 +175,7 @@ export default function App() {
 
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100%', background: 'var(--bg)', overflow: 'hidden' }}>
-      <Sidebar activeTab={tab} onTabChange={gotoTab} />
+      <Sidebar activeTab={tab} onTabChange={gotoTab} badges={{ library: inbox.length }} />
       <main className="app-main" style={{ flex: 1, overflowY: 'auto', position: 'relative' }}>
         {tab === 'dashboard' && (
           <Dashboard
@@ -213,7 +240,13 @@ export default function App() {
         )}
 
         {tab === 'library' && (
-          <LibraryPage caption={caption} onApply={applyTemplate} onNotice={showNotice} />
+          <LibraryPage
+            caption={caption}
+            onApply={applyToCaption}
+            onNotice={showNotice}
+            inbox={inbox}
+            onInboxChange={setInbox}
+          />
         )}
 
         <footer

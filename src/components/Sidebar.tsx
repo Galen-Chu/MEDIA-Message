@@ -8,6 +8,7 @@ import {
   APP_NAME,
   APP_TITLE,
   FAMILY_PEER_URL,
+  INBOX_BADGE_LABEL,
   SIDEBAR_FAMILY_LINK,
   SIDEBAR_FAMILY_TITLE,
   SIDEBAR_IDENTITY_SUB,
@@ -26,9 +27,11 @@ const NAV_ITEMS: Array<{ key: TabKey; icon: string; label: string }> = [
 interface SidebarProps {
   activeTab: TabKey;
   onTabChange: (tab: TabKey) => void;
+  /** 頁籤待處理數徽章(目前僅媒庫=收件匣待取用數;0 不顯示)。 */
+  badges?: Partial<Record<TabKey, number>>;
 }
 
-export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
+export default function Sidebar({ activeTab, onTabChange, badges = {} }: SidebarProps) {
   return (
     <div className="app-sidebar">
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 8px 24px 8px' }}>
@@ -57,6 +60,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }} aria-label="主導覽">
         {NAV_ITEMS.map((item) => {
           const active = item.key === activeTab;
+          const badge = badges[item.key] ?? 0;
           return (
             <button
               key={item.key}
@@ -65,6 +69,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
               onClick={() => onTabChange(item.key)}
               aria-current={active ? 'page' : undefined}
               style={{
+                position: 'relative',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 10,
@@ -81,6 +86,29 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                 {item.icon}
               </span>
               <span className="nav-label">{item.label}</span>
+              {badge > 0 && (
+                // 絕對定位在按鈕右上:≤720px 只剩圖示時也看得到、不擠歪置中的圖示
+                <span
+                  aria-label={INBOX_BADGE_LABEL(badge)}
+                  style={{
+                    position: 'absolute',
+                    top: 4,
+                    right: 6,
+                    minWidth: 18,
+                    height: 18,
+                    padding: '0 5px',
+                    borderRadius: 9,
+                    background: 'var(--brand-fill)', // 白字×brand-fill=.btn-primary 已稽核組合(深淺模式同值)
+                    color: '#fff',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    lineHeight: '18px',
+                    textAlign: 'center',
+                  }}
+                >
+                  {badge}
+                </span>
+              )}
             </button>
           );
         })}
