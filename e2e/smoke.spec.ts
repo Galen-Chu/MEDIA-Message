@@ -120,3 +120,48 @@ test('U3 收件匣:文管庫分頁送出時即時更新(storage 事件)', async 
   await expect(media.getByRole('heading', { name: '來自文管庫(1)' })).toBeVisible();
   await expect(media.getByText('即時送達的文案')).toBeVisible();
 });
+
+test('U4 排程摘要:開站即寫自己的摘要(fb 代碼);媒庫顯示文管庫近期排程', async ({ page }) => {
+  const soon = Date.now() + 3_600_000;
+  await page.goto(PATH);
+  await page.evaluate(
+    ([soonMs]) => {
+      // 本庫發佈歷史:一筆未到點的排程(media-message:v1 的既有形狀)
+      localStorage.setItem(
+        'media-message:v1',
+        JSON.stringify({
+          version: 1,
+          records: [
+            {
+              id: 'r1', platform: 'facebook', mode: 'schedule', mediaName: 'a.jpg', mediaKind: 'image',
+              mediaSize: 1, caption: '媒管庫排程貼文', createdAt: Date.now(), scheduledFor: soonMs, postId: null,
+            },
+          ],
+        }),
+      );
+      // 文管庫 buildScheduleFeed 實際寫入的形狀
+      localStorage.setItem(
+        'family:schedule-feed:text-message:v1',
+        JSON.stringify({
+          v: 1, product: 'text-message', updatedAt: Date.now(),
+          items: [{ platform: 'threads', when: soonMs, snippet: '文管庫的 Threads 排程' }],
+        }),
+      );
+    },
+    [soon] as const,
+  );
+  await page.goto(`${PATH}#library`);
+  await page.reload();
+
+  const own = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('family:schedule-feed:media-message:v1') ?? 'null'),
+  );
+  expect(own).toMatchObject({ v: 1, product: 'media-message' });
+  expect(own.items).toEqual([{ platform: 'fb', when: soon, snippet: '媒管庫排程貼文' }]);
+
+  const feedList = page.getByRole('list', { name: '文管庫近期排程' });
+  await expect(feedList).toBeVisible();
+  await expect(feedList.getByText('Threads', { exact: true })).toBeVisible();
+  await expect(feedList.getByText('文管庫的 Threads 排程')).toBeVisible();
+  await expect(page.getByText(/資料截至/)).toBeVisible();
+});

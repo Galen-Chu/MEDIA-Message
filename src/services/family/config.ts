@@ -28,3 +28,33 @@ export const HANDOFF_MAX_ITEMS = 20;
  * 幾週後冒出早已遺忘的文案,體感是 bug 不是功能。
  */
 export const STALE_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** 唯讀排程摘要:只寫自己的、只讀對方的。 */
+export function scheduleFeedKey(product: FamilyProduct): string {
+  return `family:schedule-feed:${product}:v1`;
+}
+
+/** 排程摘要的 snippet 上限字數(與文管庫同值)。 */
+export const FEED_SNIPPET_MAX = 60;
+
+/** 排程摘要筆數上限(對方只需「近期」,不是全量;與文管庫同值)。 */
+export const FEED_MAX_ITEMS = 5;
+
+/**
+ * 摘要 `platform` 欄位的共用代碼=文管庫 `PlatformKey`(其摘要以此寫入、以 PLATFORM_META 顯示)。
+ * 本庫寫入時把內部平台名轉成共用代碼,讀取時轉成顯示名稱;未知代碼原樣顯示。
+ * 新平台上線時兩邊契約文件同步(IA-PLAN §3.2)。
+ */
+export const FEED_PLATFORM_LABELS: Record<string, string> = {
+  fb: 'Facebook',
+  ig: 'Instagram',
+  threads: 'Threads',
+  line: 'LINE',
+  yt: 'YouTube',
+  linkedin: 'LinkedIn',
+};
+
+/** 本庫內部平台名 → 共用代碼。 */
+export const FEED_PLATFORM_CODE: Record<string, string> = {
+  facebook: 'fb',
+};

@@ -2,9 +2,9 @@
  * 媒庫頁(U1 首版,IA-D6 紅線:媒庫只存文字素材,媒體檔絕不落地)。
  * 說明素材=本機 localStorage 文字範本(儲存編發器目前的說明、一鍵套用回去),
  * 收件匣(U3,家族串接 L1)=文管庫「送至媒管庫」的文案,有待取用時置頂顯示;
- * 家族卡=前往文管庫的切換入口(收件匣空時在此說明用法);排程摘要(L2)屬 U4。
+ * 家族卡=前往文管庫的切換入口(收件匣空時在此說明用法)+文管庫近期排程(U4,家族串接 L2)。
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   INBOX_APPLIED_NOTICE,
   INBOX_APPLY,
@@ -33,8 +33,14 @@ import {
   LIB_TEMPLATE_SAVE_EMPTY_TITLE,
   LIB_TEMPLATE_SAVE_FAILED,
   LIB_TEMPLATE_SAVED_NOTICE,
+  PEER_FEED_AS_OF,
+  PEER_FEED_EMPTY,
+  PEER_FEED_HEADING,
+  PEER_FEED_UNAVAILABLE,
   TAB_LABELS,
 } from '../constants';
+import { scheduleFeedKey, PEER_PRODUCT } from '../services/family/config';
+import { feedPlatformLabel, readPeerFeed, upcomingFeedItems, type ScheduleFeed } from '../services/family/feed';
 import { takeHandoff, type HandoffItem } from '../services/family/handoff';
 import { deleteTemplate, loadTemplates, saveTemplate, type CaptionTemplate } from '../services/library';
 import { formatDateTime } from '../utils/format';
@@ -52,6 +58,19 @@ interface LibraryPageProps {
 
 export default function LibraryPage({ caption, onApply, onNotice, inbox, onInboxChange }: LibraryPageProps) {
   const [templates, setTemplates] = useState<CaptionTemplate[]>(() => loadTemplates());
+  const [peerFeed, setPeerFeed] = useState<ScheduleFeed | null>(() => readPeerFeed());
+
+  // 文管庫分頁更新排程時(storage 事件只在其他分頁寫入時觸發)即時重讀
+  useEffect(() => {
+    const feedKey = scheduleFeedKey(PEER_PRODUCT);
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === feedKey || e.key === null) setPeerFeed(readPeerFeed());
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  const peerUpcoming = peerFeed ? upcomingFeedItems(peerFeed, Date.now()) : [];
 
   const handleSave = () => {
     const { templates: next, saveFailed } = saveTemplate(caption);
@@ -265,6 +284,50 @@ export default function LibraryPage({ caption, onApply, onNotice, inbox, onInbox
             {INBOX_EMPTY}
           </p>
         )}
+
+        <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1px solid var(--border-1)' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap', marginBottom: 8 }}>
+            <h3 style={{ margin: 0, fontSize: 14, color: 'var(--text-main)' }}>{PEER_FEED_HEADING}</h3>
+            {peerFeed && (
+              <span style={{ fontSize: 12, color: 'var(--text-faint)' }}>
+                {PEER_FEED_AS_OF(formatDateTime(peerFeed.updatedAt))}
+              </span>
+            )}
+          </div>
+          {!peerFeed ? (
+            <p style={{ margin: 0, fontSize: 12.5, color: 'var(--text-sub)' }}>{PEER_FEED_UNAVAILABLE}</p>
+          ) : peerUpcoming.length === 0 ? (
+            <p style={{ margin: 0, fontSize: 12.5, color: 'var(--text-sub)' }}>{PEER_FEED_EMPTY}</p>
+          ) : (
+            <ul
+              aria-label={PEER_FEED_HEADING}
+              style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 6 }}
+            >
+              {peerUpcoming.map((entry, idx) => (
+                <li
+                  key={`${entry.when}-${idx}`}
+                  style={{
+                    display: 'flex',
+                    gap: 10,
+                    alignItems: 'baseline',
+                    padding: '8px 12px',
+                    borderRadius: 10,
+                    background: 'var(--surface-soft)',
+                    fontSize: 12.5,
+                  }}
+                >
+                  <span style={{ color: 'var(--text-faint)', whiteSpace: 'nowrap' }}>{formatDateTime(entry.when)}</span>
+                  <span style={{ color: 'var(--brand)', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                    {feedPlatformLabel(entry.platform)}
+                  </span>
+                  <span style={{ color: 'var(--text-sub)', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {entry.snippet}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
         <p style={{ margin: '14px 0 0', fontSize: 11.5, color: 'var(--text-faint)', lineHeight: 1.7 }}>
           {LIB_FUTURE_NOTE}
         </p>

@@ -152,7 +152,7 @@ export const FAMILY_PEER_URL = 'https://galen-chu.github.io/TEXT-Message/';
 export const SIDEBAR_FAMILY_LINK = '文管庫 ↗';
 export const SIDEBAR_FAMILY_TITLE = '前往文管庫(文字發文:郵件→草稿→發佈)';
 export const LIB_FUTURE_NOTE =
-  '排程摘要(家族串接 L2)與媒體 metadata 區屬後續期次(docs/IA-PLAN.md U4–U5)。';
+  '媒體 metadata 區屬後續期次(docs/IA-PLAN.md U5)。';
 
 // ── 媒庫收件匣(U3:文管庫「送至媒管庫」的文案;契約 family:handoff:v1,IA-PLAN §3.2)──
 export const INBOX_HEADING = '來自文管庫';
@@ -168,5 +168,11 @@ export const INBOX_SAVED_NOTICE = '已存為說明素材';
 export const INBOX_DISMISSED_NOTICE = '已捨棄';
 /** 取用後寫回佇列失敗(配額滿)的誠實提示尾句:該筆重新整理後會再出現。 */
 export const INBOX_REMOVE_FAILED = '——但瀏覽器儲存空間已滿,未能從收件匣移除,重新整理後會再出現';
+// ── 家族排程摘要(U4:讀文管庫 family:schedule-feed:text-message:v1;陳舊 7 天即隱藏)──
+export const PEER_FEED_HEADING = '文管庫近期排程';
+export const PEER_FEED_AS_OF = (when: string) => `資料截至 ${when}`;
+export const PEER_FEED_EMPTY = '文管庫目前沒有待發的排程';
+/** 對方從未發佈摘要、或摘要超過 7 天陳舊時顯示(整區不顯示排程內容)。 */
+export const PEER_FEED_UNAVAILABLE = '還沒收到文管庫的排程摘要(開啟過文管庫後就會出現)';
 /** 側欄媒庫頁籤的待取用數徽章(螢幕閱讀器用的完整說法)。 */
 export const INBOX_BADGE_LABEL = (n: number) => `收件匣有 ${n} 筆來自文管庫的文案`;

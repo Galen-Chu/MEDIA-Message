@@ -46,7 +46,7 @@
 | U1 | 版面殼層+四頁籤(IA-D1/D2):`Sidebar.tsx`、`activeTab`、Dashboard/發佈史頁、編發器兩欄、notice 改 toast;媒庫首版=說明素材區+家族切換卡(IA-D6 ①的 L0 部分、②);E2E smoke 改斷言新 IA;SETUP §5 步驟同步改寫 | `App.tsx`、新 `components/Sidebar.tsx`/`Dashboard.tsx`/`History.tsx`/`Library.tsx`、`services/library.ts`、`constants.ts`、`e2e/` | 否 | ✅ 2026-10-20 開發完成(三關全綠 49 測/建置/E2E 3;隨下批 push 上線) |
 | U2 | 串接 L0 對稱化(IA-D7):兩邊側欄識別塊加常駐切換連結,位置/文案兩邊一致 | `Sidebar.tsx`(兩 repo) | 是(文管庫加一個連結) | ✅ 2026-10-22(文管庫側先上線;本庫側欄識別塊外放「文管庫 ↗」,同 class `.sidebar-family-link`、同 ≤720px 收合規則,E2E 斷言寬窄螢幕皆可按) |
 | U3 | 串接 L1:說明素材交接(文管庫文庫/編發器「送至媒管庫」→ 本庫媒庫收件匣 → 帶入編發器;反向「存回文管庫文庫」另議) | 新 `services/family/handoff.ts`(兩 repo 各複製一份)+按鈕 | 是 | ✅ 2026-10-22 開發完成(文管庫送出端先上線;本庫讀取端=`services/family/config.ts`+`handoff.ts`,parse/prune 複製自文管庫、新增 `loadInbox`/`takeHandoff`;媒庫收件匣置頂+側欄徽章+`#handoff` 深連結+`storage` 事件即時更新;取用前重新讀取佇列、只刪 `to`=本庫的該筆;以文管庫真實寫入端程式做過往返相容測試)——真機驗收待做(`docs/SETUP.md` §5.1) |
-| U4 | 串接 L2:家族排程總覽(各自發佈唯讀排程摘要,媒庫家族區+Dashboard 顯示對方的近期排程) | `services/family/feed.ts`、兩邊 Dashboard/Library | 是 | U3 驗證後再議 |
+| U4 | 串接 L2:家族排程總覽(各自發佈唯讀排程摘要,媒庫家族區+Dashboard 顯示對方的近期排程) | `services/family/feed.ts`、兩邊 Dashboard/Library | 是 | ✅ 2026-10-22 開發完成(文管庫兩端先上線;本庫=`feed.ts` parse 複製自文管庫、摘要來源改發佈歷史未到點排程,發佈歷史變動即寫;讀端顯示於媒庫家族卡,與文管庫同位置——Dashboard 暫不放,兩邊對稱;已到點項目不顯示)——真機驗收待做(`docs/SETUP.md` §5.2) |
 | U5 | 頁籤隨平台擴充:M2 起評估「自媒體 Social」連線中樞/「定排程 Task」分拆;媒庫媒體資料區(metadata)隨發佈史資料量擴充;Drive 媒體檔庫=紅線修訂案,另案 | — | 否 | 隨 M2/M3 |
 
 ## 3. 技術要點
@@ -72,6 +72,7 @@
 
 - **佇列而非單一物件(2026-10-12 依文管庫 session 回饋修訂)**:單一物件時連按兩次「送至」會無聲覆蓋前一筆、寫入端看不出來。改佇列後不需覆蓋確認框,也正好對應媒庫「收件匣」可列多筆的設計;上限 20 筆(超量淘汰最舊),寫入端只 append、讀取端只刪自己取用(`to` 為自己)的項目。
 - **陳舊判定(同上回饋)**:handoff 項目 `createdAt` 超過 **7 天**視為不存在並於讀取時刪除(避免幾週後冒出早已遺忘的文案);schedule-feed 一律標示「資料截至 <updatedAt>」,`updatedAt` 超過 7 天即隱藏該區塊。
+- **摘要 `platform` 共用代碼(2026-10-22 補記)**:沿用文管庫 `PlatformKey`——`fb`/`ig`/`threads`/`line`/`yt`/`linkedin`;寫入端把內部平台名轉成共用代碼(媒管庫 `facebook`→`fb`),讀取端查表轉顯示名稱、未知代碼原樣顯示。新平台(如 X)上線時兩邊契約同步加碼。讀取端另建議濾掉 `when` 已過的項目(對方久未開站時摘要會殘留已到點排程;媒管庫已實作)。
 - 寫入失敗(配額滿)時兩邊提示都**不斷言是哪一個產品佔滿**——配額兩庫共用,只說「本機儲存空間已滿」。
 - 紅線不變:契約內**只有文字與 metadata**,媒體檔絕不進入;token、Gemini key、emails 絕不進入任何 `family:*` 鍵(兩邊同規,文管庫 2026-10-12 確認)。
 - 讀取端一律防禦式解析(版本不符/格式壞=當作不存在,功能隱藏而非報錯),與降級模式同精神。

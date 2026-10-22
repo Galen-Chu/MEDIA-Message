@@ -29,6 +29,7 @@ import {
 } from './constants';
 import { useFacebook } from './hooks/useFacebook';
 import { HANDOFF_KEY } from './services/family/config';
+import { publishOwnFeed } from './services/family/feed';
 import { loadInbox, type HandoffItem } from './services/family/handoff';
 import { addRecord, clearHistory, loadHistory } from './services/history';
 import type { PublishRecord } from './services/history';
@@ -86,6 +87,11 @@ export default function App() {
       window.removeEventListener('focus', onFocus);
     };
   }, []);
+
+  // U4:只寫自己那把排程摘要鍵。發佈歷史變動(含開站)即更新;對方開站時才讀,不必即時推送
+  useEffect(() => {
+    publishOwnFeed(records);
+  }, [records]);
 
   // 卸載時釋放預覽 URL
   useEffect(
