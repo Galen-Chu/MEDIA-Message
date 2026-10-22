@@ -146,6 +146,10 @@ export const LIB_FAMILY_HEADING = '家族';
 export const LIB_FAMILY_HINT =
   '文管庫(TEXT-Message)負責文字工作流(郵件→草稿→發文),媒管庫負責媒體工作流——家族產品、資料互不流動。';
 export const LIB_FAMILY_LINK = '前往文管庫 ↗';
-export const LIB_FAMILY_URL = 'https://galen-chu.github.io/TEXT-Message/';
+/** 家族產品(文管庫)網址:側欄常駐切換與媒庫家族卡共用。 */
+export const FAMILY_PEER_URL = 'https://galen-chu.github.io/TEXT-Message/';
+/** U2 側欄常駐切換(IA-D7 ①;文管庫側欄對應「媒管庫 ↗」,兩邊文案格式一致)。 */
+export const SIDEBAR_FAMILY_LINK = '文管庫 ↗';
+export const SIDEBAR_FAMILY_TITLE = '前往文管庫(文字發文:郵件→草稿→發佈)';
 export const LIB_FUTURE_NOTE =
   '說明交接與排程摘要(家族串接 L1/L2)與媒體 metadata 區屬後續期次(docs/IA-PLAN.md U3–U5)。';

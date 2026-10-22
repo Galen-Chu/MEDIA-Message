@@ -17,6 +17,17 @@ test('殼層:側欄四頁籤與 Dashboard 預設頁', async ({ page }) => {
   await expect(page.getByRole('button', { name: '開始發佈' })).toBeVisible();
 });
 
+test('側欄家族常駐切換(U2,與文管庫同位置):寬窄螢幕皆可按', async ({ page }) => {
+  await page.goto(PATH);
+  const familyLink = page.getByRole('link', { name: '文管庫 ↗', exact: true });
+  await expect(familyLink).toBeVisible();
+  await expect(familyLink).toHaveAttribute('href', 'https://galen-chu.github.io/TEXT-Message/');
+  // ≤720px:識別塊整塊隱藏,連結仍在(只留圖示,名稱改由 title 提供)
+  await page.setViewportSize({ width: 640, height: 800 });
+  await expect(page.locator('.sidebar-family-link')).toBeVisible();
+  await expect(page.locator('.sidebar-footer')).toBeHidden();
+});
+
 test('#media 深連結直達編發器(示範與啟用模式建置皆須通過)', async ({ page }) => {
   await page.goto(`${PATH}#media`);
   await expect(page.getByRole('heading', { level: 1, name: /編發器/ })).toBeVisible();

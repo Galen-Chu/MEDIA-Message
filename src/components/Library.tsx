@@ -8,7 +8,7 @@ import {
   LIB_FAMILY_HEADING,
   LIB_FAMILY_HINT,
   LIB_FAMILY_LINK,
-  LIB_FAMILY_URL,
+  FAMILY_PEER_URL,
   LIB_FUTURE_NOTE,
   LIB_TEMPLATE_APPLY,
   LIB_TEMPLATE_DELETE,
@@ -145,7 +145,7 @@ export default function LibraryPage({ caption, onApply, onNotice }: LibraryPageP
         </p>
         <a
           className="btn btn-outline"
-          href={LIB_FAMILY_URL}
+          href={FAMILY_PEER_URL}
           target="_blank"
           rel="noopener noreferrer"
           style={{ textDecoration: 'none', display: 'inline-block' }}
