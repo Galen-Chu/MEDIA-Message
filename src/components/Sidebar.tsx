@@ -1,7 +1,7 @@
 /**
  * 側欄(U1 殼層,結構複製文管庫 Sidebar.tsx;IA-PLAN IA-D1/D2):
- * 識別方塊=品牌符號「M」、媒庫頁籤=符號「書」(皆出自個人品牌設計系統 Uniconsign),
- * 其餘頁籤圖示維持 Emoji 混用。窄螢幕(≤720px)收合慣例由既有 CSS class 負責。
+ * 識別方塊=品牌符號「M」;頁籤圖示=Uniconsign 符號系統(日/目/木/書,對應關係見
+ * BrandIcons.tsx 檔頭)。窄螢幕(≤720px)收合慣例由既有 CSS class 負責。
  * 家族常駐切換(U2,IA-D7 ①)與文管庫 Sidebar.tsx 同位置、同樣式、同收合規則。
  */
 import {
@@ -12,17 +12,17 @@ import {
   SIDEBAR_FAMILY_LINK,
   SIDEBAR_FAMILY_TITLE,
   SIDEBAR_IDENTITY_SUB,
-  TAB_ICONS,
   TAB_LABELS,
 } from '../constants';
 import type { TabKey } from '../types';
-import { BrandMark, IconBook } from './BrandIcons';
+import type { ReactNode } from 'react';
+import { BrandMark, IconBook, IconEye, IconSun, IconTree } from './BrandIcons';
 
-const NAV_ITEMS: Array<{ key: TabKey; icon: string; label: string }> = [
-  { key: 'dashboard', icon: TAB_ICONS.dashboard, label: TAB_LABELS.dashboard },
-  { key: 'media', icon: TAB_ICONS.media, label: TAB_LABELS.media },
-  { key: 'history', icon: TAB_ICONS.history, label: TAB_LABELS.history },
-  { key: 'library', icon: TAB_ICONS.library, label: TAB_LABELS.library },
+const NAV_ITEMS: Array<{ key: TabKey; icon: ReactNode; label: string }> = [
+  { key: 'dashboard', icon: <IconSun />, label: TAB_LABELS.dashboard },
+  { key: 'media', icon: <IconEye />, label: TAB_LABELS.media },
+  { key: 'history', icon: <IconTree />, label: TAB_LABELS.history },
+  { key: 'library', icon: <IconBook />, label: TAB_LABELS.library },
 ];
 
 interface SidebarProps {
@@ -64,11 +64,11 @@ export default function Sidebar({ activeTab, onTabChange, badges = {} }: Sidebar
                 textAlign: 'left',
                 fontWeight: active ? 700 : 500,
                 color: active ? 'var(--brand)' : 'var(--text-sub)',
-                background: active ? 'var(--pill-purple-bg)' : 'transparent',
+                background: active ? 'var(--pill-brand-bg)' : 'transparent',
               }}
             >
               <span style={{ fontSize: 18 }} aria-hidden="true">
-                {item.key === 'library' ? <IconBook /> : item.icon}
+                {item.icon}
               </span>
               <span className="nav-label">{item.label}</span>
               {badge > 0 && (
@@ -83,8 +83,8 @@ export default function Sidebar({ activeTab, onTabChange, badges = {} }: Sidebar
                     height: 18,
                     padding: '0 5px',
                     borderRadius: 9,
-                    background: 'var(--brand-fill)', // 白字×brand-fill=.btn-primary 已稽核組合(深淺模式同值)
-                    color: '#fff',
+                    background: 'var(--brand-fill)',
+                    color: 'var(--on-brand-fill)', // 深色模式翻深字(Uniconsign 規範),對比由稽核案例守門
                     fontSize: 11,
                     fontWeight: 700,
                     lineHeight: '18px',

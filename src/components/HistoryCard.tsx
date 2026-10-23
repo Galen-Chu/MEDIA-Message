@@ -62,8 +62,8 @@ export default function HistoryCard({ records, onClear, emptyText }: HistoryCard
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                  <span className="pill pill-purple">{MEDIA_KIND_LABEL[r.mediaKind]}</span>
-                  <span className={`pill ${state === 'pending' ? 'pill-orange' : 'pill-purple'}`}>
+                  <span className="pill pill-brand">{MEDIA_KIND_LABEL[r.mediaKind]}</span>
+                  <span className={`pill ${state === 'pending' ? 'pill-accent' : 'pill-brand'}`}>
                     {state === 'pending' ? HISTORY_STATE_PENDING : state === 'due' ? HISTORY_STATE_DUE : HISTORY_STATUS_PUBLISHED}
                   </span>
                   <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-main)', wordBreak: 'break-all' }}>

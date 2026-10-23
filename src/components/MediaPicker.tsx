@@ -62,7 +62,7 @@ export default function MediaPicker({
             )}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 180, flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span className="pill pill-purple">{MEDIA_KIND_LABEL[kind]}</span>
+                <span className="pill pill-brand">{MEDIA_KIND_LABEL[kind]}</span>
                 <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-main)', wordBreak: 'break-all' }}>
                   {file.name}
                 </span>

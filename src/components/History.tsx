@@ -39,7 +39,7 @@ function Chip({ label, active, onClick }: { label: string; active: boolean; onCl
         padding: '5px 12px',
         borderRadius: 999,
         border: `1px solid ${active ? 'transparent' : 'var(--border-3)'}`,
-        background: active ? 'var(--pill-purple-bg)' : 'var(--card)',
+        background: active ? 'var(--pill-brand-bg)' : 'var(--card)',
         color: active ? 'var(--brand)' : 'var(--text-sub)',
       }}
     >

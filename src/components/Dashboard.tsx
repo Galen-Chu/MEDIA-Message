@@ -64,7 +64,7 @@ export default function Dashboard({ records, fbStatus, pageName, onStart }: Dash
           </h2>
           {fbStatus === 'connected' ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <span className="pill pill-purple">{DASH_FB_CONNECTED}</span>
+              <span className="pill pill-brand">{DASH_FB_CONNECTED}</span>
               {pageName && (
                 <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--text-main)' }}>{pageName}</span>
               )}
@@ -121,7 +121,7 @@ export default function Dashboard({ records, fbStatus, pageName, onStart }: Dash
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                  <span className="pill pill-orange">{formatDateTime(u.scheduledFor)}</span>
+                  <span className="pill pill-accent">{formatDateTime(u.scheduledFor)}</span>
                   <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-main)', wordBreak: 'break-all' }}>
                     {u.mediaName}
                   </span>

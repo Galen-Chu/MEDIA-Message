@@ -37,9 +37,9 @@ interface PublishPanelProps {
 }
 
 function statusPillClass(status: FacebookStatus): string {
-  if (status === 'connected') return 'pill pill-purple';
-  if (status === 'error') return 'pill pill-orange';
-  return 'pill pill-purple';
+  if (status === 'connected') return 'pill pill-brand';
+  if (status === 'error') return 'pill pill-accent';
+  return 'pill pill-brand';
 }
 
 export default function PublishPanel(props: PublishPanelProps) {

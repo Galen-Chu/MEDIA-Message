@@ -95,12 +95,6 @@ export const TAB_LABELS: Record<TabKey, string> = {
   history: '發佈史 History',
   library: '媒庫 Library',
 };
-export const TAB_ICONS: Record<TabKey, string> = {
-  dashboard: '🏠',
-  media: '🎬',
-  history: '📅',
-  library: '🗂️',
-};
 
 // ── 媒管 Dashboard(統計由發佈歷史 metadata 即時計算)──
 export const DASH_STATS_HEADING = '發佈統計';
