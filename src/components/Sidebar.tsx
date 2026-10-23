@@ -1,7 +1,7 @@
 /**
  * 側欄(U1 殼層,結構複製文管庫 Sidebar.tsx;IA-PLAN IA-D1/D2):
- * 同組漸層色以字「媒」區分品牌,不改 palette——index.css 設計系統 M0 已整套複製,
- * 故無需重跑對比度稽核。窄螢幕(≤720px)收合慣例由既有 CSS class 負責。
+ * 識別方塊=品牌符號「M」、媒庫頁籤=符號「書」(皆出自個人品牌設計系統 Uniconsign),
+ * 其餘頁籤圖示維持 Emoji 混用。窄螢幕(≤720px)收合慣例由既有 CSS class 負責。
  * 家族常駐切換(U2,IA-D7 ①)與文管庫 Sidebar.tsx 同位置、同樣式、同收合規則。
  */
 import {
@@ -16,6 +16,7 @@ import {
   TAB_LABELS,
 } from '../constants';
 import type { TabKey } from '../types';
+import { BrandMark, IconBook } from './BrandIcons';
 
 const NAV_ITEMS: Array<{ key: TabKey; icon: string; label: string }> = [
   { key: 'dashboard', icon: TAB_ICONS.dashboard, label: TAB_LABELS.dashboard },
@@ -35,23 +36,7 @@ export default function Sidebar({ activeTab, onTabChange, badges = {} }: Sidebar
   return (
     <div className="app-sidebar">
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 8px 24px 8px' }}>
-        <div
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 10,
-            background: 'linear-gradient(135deg,#6C5CE7,#FF7A59)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            fontWeight: 700,
-            fontSize: 16,
-            flexShrink: 0,
-          }}
-        >
-          媒
-        </div>
+        <BrandMark size={36} />
         <div className="sidebar-brand-text" style={{ fontWeight: 700, fontSize: 16, color: 'var(--text-main)' }}>
           {APP_TITLE}
         </div>
@@ -83,7 +68,7 @@ export default function Sidebar({ activeTab, onTabChange, badges = {} }: Sidebar
               }}
             >
               <span style={{ fontSize: 18 }} aria-hidden="true">
-                {item.icon}
+                {item.key === 'library' ? <IconBook /> : item.icon}
               </span>
               <span className="nav-label">{item.label}</span>
               {badge > 0 && (
@@ -123,23 +108,7 @@ export default function Sidebar({ activeTab, onTabChange, badges = {} }: Sidebar
           borderRadius: 12,
         }}
       >
-        <div
-          style={{
-            width: 34,
-            height: 34,
-            borderRadius: 10,
-            background: 'linear-gradient(135deg,#6C5CE7,#FF7A59)',
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 700,
-            fontSize: 16,
-            flexShrink: 0,
-          }}
-        >
-          媒
-        </div>
+        <BrandMark size={34} />
         <div>
           <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-main)' }}>{APP_NAME}</div>
           <div style={{ fontSize: 11, color: 'var(--text-weak)' }}>{SIDEBAR_IDENTITY_SUB}</div>

@@ -17,6 +17,8 @@ jobs:
       - run: npm ci
       # 單元測試(純邏輯模組)
       - run: npm test
+      # 對比度稽核(回歸閘門;2026-10-23 品牌重上色時自假閘門升級為解析 index.css 的版本)
+      - run: npm run test:contrast
       # 建置(M0 骨架無任何 secret 依賴,任何環境皆可建置)
       - run: npm run build
       # E2E smoke 跑在 preview server
