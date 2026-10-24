@@ -1,6 +1,6 @@
 /**
  * 側欄(U1 殼層,結構複製文管庫 Sidebar.tsx;IA-PLAN IA-D1/D2):
- * 識別方塊=品牌符號「M」;頁籤圖示=Uniconsign 符號系統(日/目/木/書,對應關係見
+ * 識別方塊=品牌符號「M」;頁籤圖示=Uniconsign 符號系統(儀表板/打字機/木/書,對應關係見
  * BrandIcons.tsx 檔頭)。窄螢幕(≤720px)收合慣例由既有 CSS class 負責。
  * 家族常駐切換(U2,IA-D7 ①)與文管庫 Sidebar.tsx 同位置、同樣式、同收合規則。
  */
@@ -16,11 +16,11 @@ import {
 } from '../constants';
 import type { TabKey } from '../types';
 import type { ReactNode } from 'react';
-import { BrandMark, IconBook, IconEye, IconSun, IconTree } from './BrandIcons';
+import { BrandMark, IconBook, IconDashboard, IconTree, IconTypewriter } from './BrandIcons';
 
 const NAV_ITEMS: Array<{ key: TabKey; icon: ReactNode; label: string }> = [
-  { key: 'dashboard', icon: <IconSun />, label: TAB_LABELS.dashboard },
-  { key: 'media', icon: <IconEye />, label: TAB_LABELS.media },
+  { key: 'dashboard', icon: <IconDashboard />, label: TAB_LABELS.dashboard },
+  { key: 'media', icon: <IconTypewriter />, label: TAB_LABELS.media },
   { key: 'history', icon: <IconTree />, label: TAB_LABELS.history },
   { key: 'library', icon: <IconBook />, label: TAB_LABELS.library },
 ];
