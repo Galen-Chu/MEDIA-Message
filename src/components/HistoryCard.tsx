@@ -26,7 +26,7 @@ export default function HistoryCard({ records, onClear, emptyText }: HistoryCard
   return (
     <section className="card" style={{ padding: 24 }} aria-labelledby="history-heading">
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-          <h2 id="history-heading" style={{ margin: 0, fontSize: 16, color: 'var(--text-main)', flex: 1 }}>
+          <h2 id="history-heading" className="t-card-title" style={{ margin: 0, flex: 1 }}>
             {HISTORY_HEADING}
           </h2>
           {records.length > 0 && (
@@ -41,10 +41,10 @@ export default function HistoryCard({ records, onClear, emptyText }: HistoryCard
             </button>
           )}
         </div>
-        <p style={{ margin: '0 0 12px', fontSize: 12.5, color: 'var(--text-weak)' }}>{HISTORY_HINT}</p>
+        <p className="t-sub" style={{ margin: '0 0 12px' }}>{HISTORY_HINT}</p>
 
         {records.length === 0 ? (
-          <p style={{ margin: 0, fontSize: 13, color: 'var(--text-sub)' }}>{emptyText ?? HISTORY_EMPTY}</p>
+          <p className="t-body" style={{ margin: 0, color: 'var(--text-sub)' }}>{emptyText ?? HISTORY_EMPTY}</p>
         ) : (
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
             {records.map((r) => {
@@ -66,19 +66,19 @@ export default function HistoryCard({ records, onClear, emptyText }: HistoryCard
                   <span className={`pill ${state === 'pending' ? 'pill-accent' : 'pill-brand'}`}>
                     {state === 'pending' ? HISTORY_STATE_PENDING : state === 'due' ? HISTORY_STATE_DUE : HISTORY_STATUS_PUBLISHED}
                   </span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-main)', wordBreak: 'break-all' }}>
+                  <span className="t-item-title" style={{ wordBreak: 'break-all' }}>
                     {r.mediaName}
                   </span>
-                  <span style={{ fontSize: 12, color: 'var(--text-faint)' }}>{formatBytes(r.mediaSize)}</span>
+                  <span className="t-meta t-num">{formatBytes(r.mediaSize)}</span>
                 </div>
-                <div style={{ fontSize: 12.5, color: 'var(--text-sub)' }}>
+                <div className="t-sub" style={{ color: 'var(--text-sub)' }}>
                   {r.mode === 'schedule'
                     ? `排程於 ${formatDateTime(r.scheduledFor)}`
                     : `發佈於 ${formatDateTime(r.createdAt)}`}
                   {r.postId ? ` · 貼文 id ${r.postId}` : ''}
                 </div>
                 {r.caption && (
-                  <div style={{ fontSize: 12.5, color: 'var(--text-weak)', wordBreak: 'break-word' }}>
+                  <div className="t-sub" style={{ wordBreak: 'break-word' }}>
                     {r.caption}
                   </div>
                 )}

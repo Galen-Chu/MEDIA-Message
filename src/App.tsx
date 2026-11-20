@@ -195,7 +195,7 @@ export default function App() {
         {tab === 'media' && (
           <div style={{ maxWidth: 1080, display: 'flex', flexDirection: 'column', gap: 20 }}>
             <header>
-              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: 'var(--text-main)' }}>
+              <h1 className="t-page-title" style={{ margin: 0 }}>
                 {TAB_LABELS.media}
               </h1>
             </header>
@@ -209,6 +209,7 @@ export default function App() {
                   onRemove={removeFile}
                   caption={caption}
                   onCaptionChange={setCaption}
+                  onNotice={showNotice}
                 />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20, flex: 1, minWidth: 300 }}>
@@ -255,9 +256,7 @@ export default function App() {
           />
         )}
 
-        <footer
-          style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-faint)', lineHeight: 1.8, padding: '28px 0 8px' }}
-        >
+        <footer className="t-note" style={{ textAlign: 'center', padding: '28px 0 8px' }}>
           <div>{FOOTER_NOTE}</div>
           <a href={FOOTER_PLAN_URL} target="_blank" rel="noreferrer" style={{ color: 'var(--brand)' }}>
             {FOOTER_PLAN_TEXT}

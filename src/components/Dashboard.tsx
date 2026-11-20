@@ -44,10 +44,10 @@ export default function Dashboard({ records, fbStatus, pageName, onStart }: Dash
   return (
     <div style={{ maxWidth: 1080, display: 'flex', flexDirection: 'column', gap: 20 }}>
       <header>
-        <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: 'var(--text-main)' }}>
+        <h1 className="t-page-title" style={{ margin: 0 }}>
           {TAB_LABELS.dashboard}
         </h1>
-        <p style={{ margin: '8px 0 0', fontSize: 14, color: 'var(--text-sub)' }}>{APP_TAGLINE}</p>
+        <p className="t-page-desc" style={{ margin: '8px 0 0', color: 'var(--text-sub)' }}>{APP_TAGLINE}</p>
       </header>
 
       <section
@@ -56,23 +56,18 @@ export default function Dashboard({ records, fbStatus, pageName, onStart }: Dash
         aria-labelledby="dash-connect-heading"
       >
         <div style={{ flex: 1, minWidth: 220 }}>
-          <h2
-            id="dash-connect-heading"
-            style={{ margin: '0 0 6px', fontSize: 12.5, fontWeight: 700, color: 'var(--text-weak)' }}
-          >
+          <h2 id="dash-connect-heading" className="t-sub" style={{ margin: '0 0 6px', fontWeight: 'var(--weight-bold)' }}>
             {DASH_CONNECT_HEADING}
           </h2>
           {fbStatus === 'connected' ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <span className="pill pill-brand">{DASH_FB_CONNECTED}</span>
-              {pageName && (
-                <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--text-main)' }}>{pageName}</span>
-              )}
+              {pageName && <span className="t-item-title">{pageName}</span>}
             </div>
           ) : fbStatus === 'disabled' ? (
-            <span style={{ fontSize: 13.5, color: 'var(--text-sub)' }}>{FB_STATUS_LABEL.disabled}</span>
+            <span className="t-body" style={{ color: 'var(--text-sub)' }}>{FB_STATUS_LABEL.disabled}</span>
           ) : (
-            <span style={{ fontSize: 13.5, color: 'var(--text-sub)' }}>{DASH_FB_NOT_CONNECTED}</span>
+            <span className="t-body" style={{ color: 'var(--text-sub)' }}>{DASH_FB_NOT_CONNECTED}</span>
           )}
         </div>
         <button type="button" className="btn btn-accent" onClick={onStart}>
@@ -81,31 +76,25 @@ export default function Dashboard({ records, fbStatus, pageName, onStart }: Dash
       </section>
 
       <section aria-labelledby="dash-stats-heading">
-        <h2
-          id="dash-stats-heading"
-          style={{ margin: '0 0 10px', fontSize: 12.5, fontWeight: 700, color: 'var(--text-weak)' }}
-        >
+        <h2 id="dash-stats-heading" className="t-sub" style={{ margin: '0 0 10px', fontWeight: 'var(--weight-bold)' }}>
           {DASH_STATS_HEADING}
         </h2>
         <div className="stat-row" style={{ display: 'flex', gap: 12 }}>
           {statCards.map((c) => (
             <div key={c.label} className="card stat-card" style={{ padding: 16 }}>
-              <div style={{ fontSize: 12, color: 'var(--text-weak)', fontWeight: 700 }}>{c.label}</div>
-              <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--brand)', marginTop: 4 }}>{c.value}</div>
+              <div className="t-sub" style={{ fontWeight: 'var(--weight-bold)' }}>{c.label}</div>
+              <div className="t-stat" style={{ color: 'var(--brand)', marginTop: 4 }}>{c.value}</div>
             </div>
           ))}
         </div>
       </section>
 
       <section className="card" style={{ padding: 20 }} aria-labelledby="dash-upcoming-heading">
-        <h2
-          id="dash-upcoming-heading"
-          style={{ margin: '0 0 12px', fontSize: 13.5, fontWeight: 700, color: 'var(--text-main)' }}
-        >
+        <h2 id="dash-upcoming-heading" className="t-sec-title" style={{ margin: '0 0 12px' }}>
           {DASH_UPCOMING_HEADING}
         </h2>
         {upcoming.length === 0 ? (
-          <p style={{ margin: 0, fontSize: 13, color: 'var(--text-sub)' }}>{DASH_UPCOMING_EMPTY}</p>
+          <p className="t-body" style={{ margin: 0, color: 'var(--text-sub)' }}>{DASH_UPCOMING_EMPTY}</p>
         ) : (
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
             {upcoming.map((u) => (
@@ -122,12 +111,12 @@ export default function Dashboard({ records, fbStatus, pageName, onStart }: Dash
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   <span className="pill pill-accent">{formatDateTime(u.scheduledFor)}</span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-main)', wordBreak: 'break-all' }}>
+                  <span className="t-item-title" style={{ wordBreak: 'break-all' }}>
                     {u.mediaName}
                   </span>
                 </div>
                 {u.caption && (
-                  <div style={{ fontSize: 12.5, color: 'var(--text-weak)', wordBreak: 'break-word' }}>{u.caption}</div>
+                  <div className="t-sub" style={{ wordBreak: 'break-word' }}>{u.caption}</div>
                 )}
               </li>
             ))}

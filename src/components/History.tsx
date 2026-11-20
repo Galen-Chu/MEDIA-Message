@@ -33,9 +33,9 @@ function Chip({ label, active, onClick }: { label: string; active: boolean; onCl
       type="button"
       onClick={onClick}
       aria-pressed={active}
+      className="t-sub"
       style={{
-        fontSize: 12.5,
-        fontWeight: active ? 700 : 500,
+        fontWeight: active ? 'var(--weight-bold)' : 'var(--weight-medium)',
         padding: '5px 12px',
         borderRadius: 999,
         border: `1px solid ${active ? 'transparent' : 'var(--border-3)'}`,
@@ -56,7 +56,7 @@ export default function HistoryPage({ records, onClear }: HistoryPageProps) {
   return (
     <div style={{ maxWidth: 1080, display: 'flex', flexDirection: 'column', gap: 20 }}>
       <header>
-        <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: 'var(--text-main)' }}>
+        <h1 className="t-page-title" style={{ margin: 0 }}>
           {TAB_LABELS.history}
         </h1>
       </header>
@@ -67,7 +67,7 @@ export default function HistoryPage({ records, onClear }: HistoryPageProps) {
           aria-label={HISTORY_FILTER_MODE_LABEL}
           style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}
         >
-          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-weak)' }}>{HISTORY_FILTER_MODE_LABEL}</span>
+          <span className="t-sub" style={{ fontWeight: 'var(--weight-bold)' }}>{HISTORY_FILTER_MODE_LABEL}</span>
           <Chip label={HISTORY_FILTER_ALL} active={mode === 'all'} onClick={() => setMode('all')} />
           <Chip label={HISTORY_FILTER_NOW} active={mode === 'now'} onClick={() => setMode('now')} />
           <Chip label={HISTORY_FILTER_SCHEDULE} active={mode === 'schedule'} onClick={() => setMode('schedule')} />
@@ -77,7 +77,7 @@ export default function HistoryPage({ records, onClear }: HistoryPageProps) {
           aria-label={HISTORY_FILTER_KIND_LABEL}
           style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}
         >
-          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-weak)' }}>{HISTORY_FILTER_KIND_LABEL}</span>
+          <span className="t-sub" style={{ fontWeight: 'var(--weight-bold)' }}>{HISTORY_FILTER_KIND_LABEL}</span>
           <Chip label={HISTORY_FILTER_ALL} active={kind === 'all'} onClick={() => setKind('all')} />
           <Chip label={HISTORY_FILTER_IMAGE} active={kind === 'image'} onClick={() => setKind('image')} />
           <Chip label={HISTORY_FILTER_VIDEO} active={kind === 'video'} onClick={() => setKind('video')} />

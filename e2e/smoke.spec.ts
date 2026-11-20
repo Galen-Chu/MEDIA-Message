@@ -17,14 +17,17 @@ test('殼層:側欄四頁籤與 Dashboard 預設頁', async ({ page }) => {
   await expect(page.getByRole('button', { name: '開始發佈' })).toBeVisible();
 });
 
-test('側欄家族常駐切換(U2,與文管庫同位置):寬窄螢幕皆可按', async ({ page }) => {
+test('側欄家族常駐切換(U2,與文管庫同位置;2026-11-20 三方互連+聲管庫):寬窄螢幕皆可按', async ({ page }) => {
   await page.goto(PATH);
   const familyLink = page.getByRole('link', { name: '文管庫 ↗', exact: true });
   await expect(familyLink).toBeVisible();
   await expect(familyLink).toHaveAttribute('href', 'https://galen-chu.github.io/TEXT-Message/');
+  const voicesLink = page.getByRole('link', { name: '聲管庫 ↗', exact: true });
+  await expect(voicesLink).toBeVisible();
+  await expect(voicesLink).toHaveAttribute('href', 'https://galen-chu.github.io/VOICES-Message/');
   // ≤720px:識別塊整塊隱藏,連結仍在(只留圖示,名稱改由 title 提供)
   await page.setViewportSize({ width: 640, height: 800 });
-  await expect(page.locator('.sidebar-family-link')).toBeVisible();
+  await expect(page.locator('.sidebar-family-link').first()).toBeVisible();
   await expect(page.locator('.sidebar-footer')).toBeHidden();
 });
 
@@ -42,6 +45,35 @@ test('#media 深連結直達編發器(示範與啟用模式建置皆須通過)',
   await expect(demoNote.or(connectButton)).toBeVisible();
   // 無附件+未連線:發佈鈕兩種模式下皆停用
   await expect(page.getByRole('button', { name: '立即發佈' })).toBeDisabled();
+});
+
+// M-PLAN D8 一期(AI 看圖生說明,BYOK):無金鑰路徑不觸碰 Google 網路——
+// 點擊僅提示並開金鑰設定 Modal(IA-D8 勾選與誠實標示都在 Modal 內)。
+const PNG_1X1_BASE64 =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+
+test('AI 生成說明(D8 一期):選圖後按生成,無金鑰→提示並開金鑰設定 Modal', async ({ page }) => {
+  await page.goto(`${PATH}#media`);
+  await page
+    .locator('input[type="file"]')
+    .setInputFiles({ name: 'sample.png', mimeType: 'image/png', buffer: Buffer.from(PNG_1X1_BASE64, 'base64') });
+
+  const aiButton = page.getByRole('button', { name: '✨ AI 生成說明' });
+  await expect(aiButton).toBeVisible();
+  await aiButton.click();
+
+  // 無金鑰:toast 提示 + 金鑰設定 Modal 開啟
+  await expect(page.getByRole('status')).toContainText('尚未設定 AI 金鑰');
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByText('使用文管庫已設定的金鑰(唯讀)')).toBeVisible();
+  await expect(dialog.getByText('兩個產品花同一份 Gemini 配額。')).toBeVisible();
+  await expect(dialog.getByText('未偵測到文管庫的金鑰——先在文管庫設定')).toBeVisible();
+  await expect(page.getByText('金鑰:未設定', { exact: true })).toBeVisible();
+
+  // 關閉 Modal 可正常返回
+  await dialog.getByRole('button', { name: '關閉' }).click();
+  await expect(dialog).toHaveCount(0);
 });
 
 test('頁籤導航:發佈史與媒庫頁', async ({ page }) => {

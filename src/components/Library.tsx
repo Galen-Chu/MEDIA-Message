@@ -120,17 +120,17 @@ export default function LibraryPage({ caption, onApply, onNotice, inbox, onInbox
   return (
     <div style={{ maxWidth: 1080, display: 'flex', flexDirection: 'column', gap: 20 }}>
       <header>
-        <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: 'var(--text-main)' }}>
+        <h1 className="t-page-title" style={{ margin: 0 }}>
           {TAB_LABELS.library}
         </h1>
       </header>
 
       {inbox.length > 0 && (
         <section id="handoff" className="card" style={{ padding: 24 }} aria-labelledby="lib-inbox-heading">
-          <h2 id="lib-inbox-heading" style={{ margin: '0 0 6px', fontSize: 16, color: 'var(--text-main)' }}>
+          <h2 id="lib-inbox-heading" className="t-card-title" style={{ margin: '0 0 6px' }}>
             {INBOX_HEADING}({inbox.length})
           </h2>
-          <p style={{ margin: '0 0 14px', fontSize: 12.5, color: 'var(--text-weak)', lineHeight: 1.7 }}>
+          <p className="t-sub" style={{ margin: '0 0 14px' }}>
             {INBOX_HINT}
           </p>
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -149,35 +149,33 @@ export default function LibraryPage({ caption, onApply, onNotice, inbox, onInbox
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 12, color: 'var(--text-faint)', flex: 1 }}>
+                  <span className="t-meta t-num" style={{ flex: 1 }}>
                     {INBOX_SENT_AT(formatDateTime(entry.createdAt))}
                   </span>
                   <button
                     type="button"
-                    className="btn btn-primary"
-                    style={{ fontSize: 12, padding: '6px 12px' }}
+                    className="btn btn-primary btn-sm"
                     onClick={() => handleInboxApply(entry.id)}
                   >
                     {INBOX_APPLY}
                   </button>
                   <button
                     type="button"
-                    className="btn btn-outline"
-                    style={{ fontSize: 12, padding: '6px 12px' }}
+                    className="btn btn-outline btn-sm"
                     onClick={() => handleInboxSave(entry)}
                   >
                     {INBOX_SAVE}
                   </button>
                   <button
                     type="button"
-                    className="btn btn-ghost"
-                    style={{ fontSize: 12, padding: '6px 12px', color: 'var(--error)' }}
+                    className="btn btn-ghost btn-sm"
+                    style={{ color: 'var(--error)' }}
                     onClick={() => handleInboxDismiss(entry.id)}
                   >
                     {INBOX_DISMISS}
                   </button>
                 </div>
-                <div style={{ fontSize: 13, color: 'var(--text-main)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                <div className="t-body" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                   {entry.text}
                 </div>
               </li>
@@ -187,10 +185,10 @@ export default function LibraryPage({ caption, onApply, onNotice, inbox, onInbox
       )}
 
       <section className="card" style={{ padding: 24 }} aria-labelledby="lib-template-heading">
-        <h2 id="lib-template-heading" style={{ margin: '0 0 6px', fontSize: 16, color: 'var(--text-main)' }}>
+        <h2 id="lib-template-heading" className="t-card-title" style={{ margin: '0 0 6px' }}>
           {LIB_TEMPLATE_HEADING}
         </h2>
-        <p style={{ margin: '0 0 14px', fontSize: 12.5, color: 'var(--text-weak)' }}>{LIB_TEMPLATE_HINT}</p>
+        <p className="t-sub" style={{ margin: '0 0 14px' }}>{LIB_TEMPLATE_HINT}</p>
         <button
           type="button"
           className="btn btn-primary"
@@ -202,7 +200,7 @@ export default function LibraryPage({ caption, onApply, onNotice, inbox, onInbox
         </button>
 
         {templates.length === 0 ? (
-          <p style={{ margin: '16px 0 0', fontSize: 13, color: 'var(--text-sub)' }}>{LIB_TEMPLATE_EMPTY}</p>
+          <p className="t-body" style={{ margin: '16px 0 0', color: 'var(--text-sub)' }}>{LIB_TEMPLATE_EMPTY}</p>
         ) : (
           <ul
             style={{
@@ -227,29 +225,28 @@ export default function LibraryPage({ caption, onApply, onNotice, inbox, onInbox
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 12, color: 'var(--text-faint)', flex: 1 }}>
+                  <span className="t-meta t-num" style={{ flex: 1 }}>
                     {formatDateTime(t.createdAt)}
                   </span>
                   <button
                     type="button"
-                    className="btn btn-outline"
-                    style={{ fontSize: 12, padding: '6px 12px' }}
+                    className="btn btn-outline btn-sm"
                     onClick={() => onApply(t.text)}
                   >
                     {LIB_TEMPLATE_APPLY}
                   </button>
                   <button
                     type="button"
-                    className="btn btn-ghost"
-                    style={{ fontSize: 12, padding: '6px 12px', color: 'var(--error)' }}
+                    className="btn btn-ghost btn-sm"
+                    style={{ color: 'var(--error)' }}
                     onClick={() => handleDelete(t.id)}
                   >
                     {LIB_TEMPLATE_DELETE}
                   </button>
                 </div>
                 <div
+                  className="t-body"
                   style={{
-                    fontSize: 13,
                     color: 'var(--text-sub)',
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-word',
@@ -264,10 +261,10 @@ export default function LibraryPage({ caption, onApply, onNotice, inbox, onInbox
       </section>
 
       <section className="card" style={{ padding: 24 }} aria-labelledby="lib-family-heading">
-        <h2 id="lib-family-heading" style={{ margin: '0 0 6px', fontSize: 16, color: 'var(--text-main)' }}>
+        <h2 id="lib-family-heading" className="t-card-title" style={{ margin: '0 0 6px' }}>
           {LIB_FAMILY_HEADING}
         </h2>
-        <p style={{ margin: '0 0 14px', fontSize: 12.5, color: 'var(--text-weak)', lineHeight: 1.7 }}>
+        <p className="t-sub" style={{ margin: '0 0 14px' }}>
           {LIB_FAMILY_HINT}
         </p>
         <a
@@ -280,24 +277,24 @@ export default function LibraryPage({ caption, onApply, onNotice, inbox, onInbox
           {LIB_FAMILY_LINK}
         </a>
         {inbox.length === 0 && (
-          <p style={{ margin: '14px 0 0', fontSize: 12.5, color: 'var(--text-sub)', lineHeight: 1.7 }}>
+          <p className="t-sub" style={{ margin: '14px 0 0', color: 'var(--text-sub)' }}>
             {INBOX_EMPTY}
           </p>
         )}
 
         <div style={{ marginTop: 18, paddingTop: 14, borderTop: '1px solid var(--border-1)' }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap', marginBottom: 8 }}>
-            <h3 style={{ margin: 0, fontSize: 14, color: 'var(--text-main)' }}>{PEER_FEED_HEADING}</h3>
+            <h3 className="t-sec-title" style={{ margin: 0 }}>{PEER_FEED_HEADING}</h3>
             {peerFeed && (
-              <span style={{ fontSize: 12, color: 'var(--text-faint)' }}>
+              <span className="t-meta t-num">
                 {PEER_FEED_AS_OF(formatDateTime(peerFeed.updatedAt))}
               </span>
             )}
           </div>
           {!peerFeed ? (
-            <p style={{ margin: 0, fontSize: 12.5, color: 'var(--text-sub)' }}>{PEER_FEED_UNAVAILABLE}</p>
+            <p className="t-sub" style={{ margin: 0, color: 'var(--text-sub)' }}>{PEER_FEED_UNAVAILABLE}</p>
           ) : peerUpcoming.length === 0 ? (
-            <p style={{ margin: 0, fontSize: 12.5, color: 'var(--text-sub)' }}>{PEER_FEED_EMPTY}</p>
+            <p className="t-sub" style={{ margin: 0, color: 'var(--text-sub)' }}>{PEER_FEED_EMPTY}</p>
           ) : (
             <ul
               aria-label={PEER_FEED_HEADING}
@@ -306,6 +303,7 @@ export default function LibraryPage({ caption, onApply, onNotice, inbox, onInbox
               {peerUpcoming.map((entry, idx) => (
                 <li
                   key={`${entry.when}-${idx}`}
+                  className="t-sub"
                   style={{
                     display: 'flex',
                     gap: 10,
@@ -313,11 +311,10 @@ export default function LibraryPage({ caption, onApply, onNotice, inbox, onInbox
                     padding: '8px 12px',
                     borderRadius: 10,
                     background: 'var(--surface-soft)',
-                    fontSize: 12.5,
                   }}
                 >
                   <span style={{ color: 'var(--text-faint)', whiteSpace: 'nowrap' }}>{formatDateTime(entry.when)}</span>
-                  <span style={{ color: 'var(--brand)', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                  <span style={{ color: 'var(--brand)', fontWeight: 'var(--weight-bold)', whiteSpace: 'nowrap' }}>
                     {feedPlatformLabel(entry.platform)}
                   </span>
                   <span style={{ color: 'var(--text-sub)', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -328,7 +325,7 @@ export default function LibraryPage({ caption, onApply, onNotice, inbox, onInbox
             </ul>
           )}
         </div>
-        <p style={{ margin: '14px 0 0', fontSize: 11.5, color: 'var(--text-faint)', lineHeight: 1.7 }}>
+        <p className="t-note" style={{ margin: '14px 0 0' }}>
           {LIB_FUTURE_NOTE}
         </p>
       </section>

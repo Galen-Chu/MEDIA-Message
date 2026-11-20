@@ -69,12 +69,12 @@ export default function PublishPanel(props: PublishPanelProps) {
 
   return (
     <section className="card" style={{ padding: 24 }} aria-labelledby="publish-heading">
-      <h2 id="publish-heading" style={{ margin: '0 0 12px', fontSize: 16, color: 'var(--text-main)' }}>
+      <h2 id="publish-heading" className="t-card-title" style={{ margin: '0 0 12px' }}>
         {PUBLISH_HEADING}
       </h2>
 
       {disabled ? (
-        <p style={{ margin: 0, fontSize: 13, color: 'var(--text-sub)' }}>{PUBLISH_DEMO_NOTE}</p>
+        <p className="t-body" style={{ margin: 0, color: 'var(--text-sub)' }}>{PUBLISH_DEMO_NOTE}</p>
       ) : (
         <>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
@@ -117,7 +117,7 @@ export default function PublishPanel(props: PublishPanelProps) {
                 <legend className="field-label" style={{ padding: 0 }}>
                   {PUBLISH_MODE_LABEL}
                 </legend>
-                <div style={{ display: 'flex', gap: 18, fontSize: 13.5, color: 'var(--text-main)' }}>
+                <div className="t-body" style={{ display: 'flex', gap: 18 }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <input
                       type="radio"
@@ -158,7 +158,7 @@ export default function PublishPanel(props: PublishPanelProps) {
 
       {publishing && (
         <div style={{ marginBottom: 12 }}>
-          <div style={{ fontSize: 12.5, color: 'var(--text-sub)', marginBottom: 4 }}>
+          <div className="t-sub t-num" style={{ color: 'var(--text-sub)', marginBottom: 4 }}>
             {PUBLISH_UPLOADING}
             {progress != null ? ` ${Math.round(progress * 100)}%` : ''}
           </div>
@@ -187,7 +187,7 @@ export default function PublishPanel(props: PublishPanelProps) {
       )}
 
       {errorText && (
-        <p role="alert" style={{ margin: '0 0 12px', fontSize: 13, color: 'var(--error)' }}>
+        <p role="alert" className="t-body" style={{ margin: '0 0 12px', color: 'var(--error)' }}>
           {errorText}
         </p>
       )}

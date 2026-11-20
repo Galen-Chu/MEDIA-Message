@@ -8,6 +8,8 @@ MEDIA-Message(媒管庫;repo Galen-Chu/MEDIA-Message)— 社群媒體**媒體發
 npm run dev        # 開發伺服器
 npm run build      # 型別檢查 + vite build(+ worker 型別檢查)
 npm test           # 單元測試(vitest)
+npm run test:contrast    # WCAG AA 對比度稽核(scripts/contrast-audit.mjs)
+npm run test:typography  # 字體規格稽核(scripts/typography-audit.mjs;2026-11-20 自文管庫推廣)
 npm run test:e2e   # Playwright E2E(serve dist;跑之前先 npm run build)
 ```
 
@@ -17,6 +19,8 @@ npm run test:e2e   # Playwright E2E(serve dist;跑之前先 npm run build)
 - `src/App.tsx` — U1 版面殼層:側欄四頁籤(媒管 Dashboard/編發器 Media/發佈史 History/媒庫 Library,`docs/IA-PLAN.md` IA-D2),activeTab 由 hash 初始化+聆聽 hashchange(切頁 `replaceState` 不塞返回歷史);編輯器狀態(file/previewUrl/caption/mode)留 App 層——切頁籤不遺失、上傳中切頁不中斷(IA-PLAN §3.3),狀態量小不加全域 store
 - `src/services/facebook/` — M1 FB 粉專模組(**D7:瀏覽器端 OAuth、零後端、零 app secret**):`config`(env+Graph v26.0)/`sdk`(FB JS SDK 載入、`FB.login({config_id})` 回短效 user token)/`graph`(`/me/accounts` 錨定抽取 page id、photos multipart 直傳、影片 videos `source` multipart 單請求;fetch 可注入)/`schedule`(排程時間窗純邏輯)/`errors`(Graph code 分類)
 - `src/hooks/useFacebook.ts` — 連線狀態機(`disabled|disconnected|connecting|connected|error`;token 僅記憶體、過期導向重連);`publish` 統一入口(檔案驗證+排程驗證+分派圖/影片路徑+影片進度)
+- `src/services/gemini/` — **M4 媒體 AI 一期(D8,2026-11-20)**:看圖生成說明/標籤,Gemini 多模態 BYOK 瀏覽器直呼——`caption.ts`(模型候選降級迴圈/prompt/`parseCaptionReply` 說明+標籤分離/`checkImageEligible` 一期只吃圖片且 ≤15MB;呼叫形狀與文管庫 `rewrite.ts` 完全一致,`parts[].inlineData` 傳 base64)/`keyStore.ts`(**IA-D8**:本機鍵 `media-message:gemini-key` 或勾選唯讀文管庫 `text-message:gemini-key`——永不寫入/清除對方鍵,來源偏好 `media-message:gemini-source`,金鑰不進任何 `family:*`);模型記憶 `media-message:gemini-model`(不在契約內)
+- `src/hooks/useMediaAi.ts` + `src/components/AiCaption.tsx` — busy/done/error 狀態機(AbortController 停止=aborted 顯示「已停止」,文管庫 D15 慣例)+說明卡 AI 操作列/金鑰 Modal(IA-D8 勾選+誠實標示四條)/結果 Modal(可編輯+標籤 chips 勾選附加結尾=人審窗口);無金鑰顯示按鈕但點擊僅提示(文管庫 D5 慣例)
 - `src/services/history.ts` — 發佈歷史:僅 metadata 落地(localStorage `media-message:v1`,上限 200 筆,storage 可注入)
 - `src/services/library.ts` — 媒庫說明素材:純文字範本(localStorage `media-message:library:v1`,上限 50 筆;鏡像 history.ts 模式——storage 可注入、防禦式解析、配額滿 `saveFailed` 永不拋)
 - `src/components/` — 殼層與四頁:`Sidebar`(四頁籤側欄,結構複製文管庫)/`Dashboard`(統計卡+連線摘要+近期排程)/`History`(發佈史頁=篩選 chips+記錄列表)/`Library`(媒庫頁=說明素材+家族切換卡);編發器:`MediaPicker`(附件選檔+預覽)/`PublishPanel`(連線+粉專選擇+立即/排程+進度)/`HistoryCard`(記錄列表;排程記錄依現在時間顯示「待發/應已發佈」)
@@ -24,7 +28,7 @@ npm run test:e2e   # Playwright E2E(serve dist;跑之前先 npm run build)
 - `src/index.css` — 設計系統自文管庫整套複製(深色模式、WCAG AA 已驗證 token;調整 palette 時重跑 `scripts/contrast-audit.mjs`)
 - `vite.config.ts` 的 `base: '/MEDIA-Message/'` 為 Pages 子路徑所需,勿移除
 - 後端輔助:M1 起**不需要**——FB 全程瀏覽器直傳;未來期次(Threads/IG 需 hosted URL)再評估
-- caption AI:Gemini BYOK 模組複製自文管庫(語氣/角色/語言)屬後續期次,key 僅存使用者瀏覽器
+- 文字 AI(語氣改寫等文管庫 Gemini 模組)屬後續期次;M4 一期只做看圖生說明(上方 `services/gemini/`),key 僅存使用者瀏覽器
 
 ## FB 串接設定(D7:瀏覽器端 OAuth)
 
@@ -33,8 +37,8 @@ npm run test:e2e   # Playwright E2E(serve dist;跑之前先 npm run build)
 
 ## CI/CD
 
-- PR:`.github/workflows/ci.yml`(vitest → build → Playwright)
-- main push:`deploy.yml`(test → build → E2E → Pages 部署;**E2E 是部署閘門**,示範與啟用兩種建置皆須通過——E2E 斷言採模式分歧擇一)
+- PR:`.github/workflows/ci.yml`(vitest → 對比度稽核 → 字體規格稽核 → build → Playwright;後兩閘門 2026-11-20 自文管庫推廣)
+- main push:`deploy.yml`(test → 對比度 → 字體 → build → E2E → Pages 部署;**E2E 是部署閘門**,示範與啟用兩種建置皆須通過——E2E 斷言採模式分歧擇一)
 - secret 注入=選用式(`env:` + shell `if`,`secrets` context 不可用於 step `if:`);CI 事故與教訓見 `docs/INCIDENTS.md`
 
 ## 紅線(修改時勿破壞)

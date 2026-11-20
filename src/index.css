@@ -27,6 +27,36 @@
   --error: #c8423b;
   --shadow-card: 0 2px 10px rgba(26, 25, 23, 0.07);
   --font-sans: 'Inter', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', system-ui, sans-serif;
+
+  /* ---- 字體規格(2026-11-20 自文管庫推廣;規格與細則見文管庫 docs/UIUX.md §六)---
+     沿用 Uniconsign 的字族/字重/行高 token 原義,**字級刻意偏離**(同文管庫):設計系統
+     以 16px 為基準,本產品是高密度工具型介面,內文基準 13px,級數自成 7 級。
+     注意:12px 級命名 --text-sm——文管庫原名 --text-sub 與本檔上方調色盤的次要文字
+     顏色 token 撞名(同名後者勝出、兩種用法各壞一邊),2026-11-20 修正後家族一律用
+     --text-sm;稽核腳本規則四守門。 */
+  --text-micro: 10px; /* 徽章內字、極小註記 */
+  --text-meta: 11px; /* 中繼資料、時間戳、誠實標示 */
+  --text-sm: 12px; /* 次要描述、chips、小按鈕 */
+  --text-body: 13px; /* 內文基準、頁面描述、列表內容 */
+  --text-card: 15px; /* 卡片與 Modal 標題 */
+  --text-page: 20px; /* 頁面標題 */
+  --text-stat: 26px; /* 統計數字 */
+
+  /* 字重只用這四級(Uniconsign 原生就沒有 800/900,舊有的一律收斂到 bold) */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* 行高三級;中文內文 1.7 比英文慣例寬鬆是刻意的 */
+  --leading-tight: 1.25;
+  --leading-snug: 1.45;
+  --leading-normal: 1.7;
+
+  /* emoji 圖示尺寸——**與文字級數分家**:它是圖不是字 */
+  --emoji-sm: 16px;
+  --emoji-md: 18px;
+  --emoji-art: 36px;
 }
 
 /* 深色模式:僅覆寫語意變數(元件皆走變數);brand/brand-fill 皆調亮為 brand-400
@@ -106,6 +136,99 @@ button {
   color: inherit;
 }
 
+/* ---- 字體規格類別層(2026-11-20 自文管庫推廣)--------------------------------
+   元件一律用這些 class,不再寫 inline fontSize/fontWeight/lineHeight
+   (`npm run test:typography` 是回歸閘門,新的 inline 字級會讓 CI 失敗)。
+   每個 class = 一個「角色」而非一個尺寸:要新角色才加 class,不照尺寸加。
+   顏色是預設值——需要品牌色/錯誤色時用 inline color 覆蓋(inline 優先於 class)。
+   本區塊刻意排在 .pill/.text-input/.btn 等 class **之前**:同特異性後者贏,
+   .t-* 掛在這些元素上時是靜默 no-op——需要並存時走 escape hatch(值必須是 token)。 */
+
+/* 頁面層 */
+.t-page-title {
+  font-size: var(--text-page);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  color: var(--text-main);
+}
+.t-page-desc {
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--text-weak);
+}
+
+/* 卡片層:card-title=卡片/Modal 標題,sec-title=卡內小標題(副標題) */
+.t-card-title {
+  font-size: var(--text-card);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  color: var(--text-main);
+}
+.t-sec-title {
+  font-size: var(--text-body);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+  color: var(--text-main);
+}
+
+/* 內容層 */
+.t-body {
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--text-main);
+}
+.t-item-title {
+  font-size: var(--text-body);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+  color: var(--text-main);
+}
+.t-sub {
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  color: var(--text-weak);
+}
+
+/* 中繼層:meta=單行(時間/計數),note=多行誠實標示 */
+.t-meta {
+  font-size: var(--text-meta);
+  line-height: var(--leading-snug);
+  color: var(--text-faint);
+}
+.t-note {
+  font-size: var(--text-meta);
+  line-height: var(--leading-normal);
+  color: var(--text-faint);
+}
+.t-micro {
+  font-size: var(--text-micro);
+  font-weight: var(--weight-semibold);
+  line-height: 1.2;
+}
+
+/* 數字:統計數字與並排數列一律等寬數字,否則逐日變動的位數會讓欄位左右跳動 */
+.t-stat {
+  font-size: var(--text-stat);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
+}
+.t-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* emoji 圖示(見 :root 的尺寸註解:圖不跟著字級走) */
+.t-emoji-sm {
+  font-size: var(--emoji-sm);
+}
+.t-emoji {
+  font-size: var(--emoji-md);
+}
+.t-emoji-art {
+  font-size: var(--emoji-art);
+  line-height: 1;
+}
+
 .card {
   background: var(--card);
   border-radius: 16px;
@@ -113,10 +236,16 @@ button {
 }
 
 .btn {
-  font-weight: 700;
-  font-size: 13px;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-body);
   border-radius: 10px;
   padding: 10px 18px;
+}
+/* 次要/密集排列用的小尺寸按鈕(取代各頁自行寫 inline 的小字按鈕;自文管庫推廣) */
+.btn-sm {
+  font-size: var(--text-sm);
+  padding: 6px 12px;
+  border-radius: 8px;
 }
 .btn-primary {
   background: var(--brand-fill);
@@ -141,16 +270,16 @@ button {
   padding: 10px 12px;
   border-radius: 9px;
   border: 1px solid var(--border-3);
-  font-size: 13px;
+  font-size: var(--text-body);
   font-family: inherit;
   color: var(--text-main);
 }
 
 .pill {
-  font-size: 10.5px;
+  font-size: var(--text-micro);
   padding: 2px 9px;
   border-radius: 999px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   white-space: nowrap;
   height: fit-content;
 }
@@ -164,8 +293,8 @@ button {
 }
 
 .field-label {
-  font-size: 11.5px;
-  font-weight: 700;
+  font-size: var(--text-meta);
+  font-weight: var(--weight-bold);
   color: var(--text-weak);
   margin-bottom: 6px;
 }
@@ -203,8 +332,8 @@ button {
   color: #fff;
   padding: 12px 20px;
   border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--text-body);
+  font-weight: var(--weight-semibold);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   z-index: 100;
   animation: toastIn 0.2s ease;
@@ -229,8 +358,10 @@ button {
   gap: 10px;
 }
 /*
-  家族切換連結(U2,與文管庫同規)。margin-top 放這裡而非 inline style:≤720px 時
-  .sidebar-footer 整塊隱藏,此連結需接手 margin-top:auto 才會留在側欄底部(inline style 會蓋掉斷點規則)。
+  家族切換連結(U2,與文管庫同規;2026-11-20 起兩條)。margin-top 放這裡而非 inline
+  style:≤720px 時 .sidebar-footer 整塊隱藏,第一條連結需接手 margin-top:auto 才會留在
+  側欄底部(inline style 會蓋掉斷點規則)——斷點只推第一條(:first-of-type),兩條都推
+  會平分閒置空間、連結飄在欄中間。first-of-type 對「同層第一個 <a>」成立:nav 按鈕是 button。
 */
 .sidebar-family-link {
   margin-top: 8px;
@@ -284,7 +415,7 @@ button {
   .nav-label {
     display: none;
   }
-  .sidebar-family-link {
+  .sidebar-family-link:first-of-type {
     margin-top: auto;
   }
   .nav-btn {

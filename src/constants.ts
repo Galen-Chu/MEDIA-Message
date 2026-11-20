@@ -1,6 +1,7 @@
 import type { MediaKind, TabKey } from './types';
 import type { FacebookErrorCode } from './services/facebook/errors';
 import type { FacebookStatus } from './hooks/useFacebook';
+import type { MediaAiErrorCode } from './hooks/useMediaAi';
 
 // UI 字串集中於此,不散落元件(家族慣例)
 
@@ -33,6 +34,59 @@ export const AUDIO_KIND_HINT = '目前無平台可發佈純音檔(M-PLAN §2 查
 export const CAPTION_HEADING = '說明';
 export const CAPTION_HINT = '附件為主、說明為輔——圖片說明或影片說明(選填)';
 export const CAPTION_PLACEHOLDER = '這張照片/這支影片的說明…';
+
+// ── AI 看圖生說明(M-PLAN D8 一期,BYOK;金鑰=本機或唯讀文管庫 IA-D8)──
+export const AI_GENERATE_BTN = '✨ AI 生成說明';
+export const AI_GENERATING = '生成中…';
+export const AI_STOP_BTN = '⏹ 停止';
+export const AI_KEY_BTN = '🔑 AI 金鑰';
+export const AI_KEY_SOURCE_OWN = '金鑰:本機';
+export const AI_KEY_SOURCE_PEER = '金鑰:文管庫(唯讀)';
+export const AI_KEY_SOURCE_NONE = '金鑰:未設定';
+export const AI_NEED_IMAGE = '請先選擇圖片附件,再使用 AI 生成說明';
+export const AI_NO_KEY = '尚未設定 AI 金鑰——可自行填入,或勾選使用文管庫已設定的金鑰';
+
+export const AI_KEY_MODAL_TITLE = '🔑 AI 金鑰設定';
+export const AI_KEY_OWN_LABEL = '本機金鑰(只存在此瀏覽器)';
+export const AI_KEY_OWN_PLACEHOLDER = '貼上 Gemini API key(AIza… 或 AQ. 開頭)';
+export const AI_KEY_SAVE = '儲存本機金鑰';
+export const AI_KEY_SAVED_NOTICE = '已儲存本機金鑰';
+export const AI_KEY_CLEAR = '清除';
+export const AI_KEY_CLEARED_NOTICE = '已清除本機金鑰';
+export const AI_KEY_PEER_CHECK = '使用文管庫已設定的金鑰(唯讀)';
+export const AI_KEY_PEER_DETECTED = '已偵測到文管庫的金鑰';
+export const AI_KEY_PEER_MISSING = '未偵測到文管庫的金鑰——先在文管庫設定';
+export const AI_KEY_NOTES = [
+  '金鑰只存在此瀏覽器(localStorage),不經任何後端。',
+  '勾選「文管庫金鑰」=唯讀文管庫設定的金鑰;文管庫端清除後,這裡即讀不到。',
+  '兩個產品花同一份 Gemini 配額。',
+  'AI 生成時,圖片會直送 Google Gemini API;本站不留存圖片與生成結果。',
+];
+export const AI_KEY_CLOSE = '關閉';
+
+export const AI_RESULT_TITLE = '✨ AI 生成結果';
+export const AI_RESULT_TAGS_LABEL = '建議標籤(點擊加入/移出)';
+export const AI_RESULT_APPLY = '帶入說明';
+export const AI_RESULT_APPLIED_NOTICE = '已帶入說明(勾選的標籤附加於結尾)';
+export const AI_RESULT_COPY = '複製';
+export const AI_RESULT_COPIED_NOTICE = '已複製到剪貼簿';
+export const AI_RESULT_COPY_FAILED = '複製失敗(瀏覽器未允許存取剪貼簿)';
+export const AI_RESULT_CLOSE = '關閉';
+
+export const AI_ERROR_COPY: Record<MediaAiErrorCode, string> = {
+  invalid_key: '金鑰無效或沒有權限——請檢查 AI 金鑰設定',
+  quota: 'Gemini 配額已用盡或被限流——稍後再試',
+  server: 'Google 服務暫時異常,請稍後再試',
+  network: '網路異常,請確認連線後再試',
+  no_content: '模型沒有回覆內容,請再試一次',
+  model_unavailable: '目前沒有可用的模型候選,請稍後再試',
+  aborted: '已停止',
+  unknown: '發生未知錯誤,請再試一次',
+  no_key: AI_NO_KEY,
+  peer_key_missing: '文管庫的金鑰已不存在(可能已在文管庫清除)——改用本機金鑰,或回文管庫重新設定',
+  unsupported_kind: 'AI 生成說明一期只支援圖片附件(影片不支援)',
+  image_too_large: '圖片超過 15MB,超出 inline 請求上限——請改用較小的圖',
+};
 
 // ── 發佈面板 ──
 export const PUBLISH_HEADING = '發佈——Facebook 粉專';
@@ -145,6 +199,10 @@ export const FAMILY_PEER_URL = 'https://galen-chu.github.io/TEXT-Message/';
 /** U2 側欄常駐切換(IA-D7 ①;文管庫側欄對應「媒管庫 ↗」,兩邊文案格式一致)。 */
 export const SIDEBAR_FAMILY_LINK = '文管庫 ↗';
 export const SIDEBAR_FAMILY_TITLE = '前往文管庫(文字發文:郵件→草稿→發佈)';
+/** 側欄第二條家族切換(2026-11-20 三方互連):聲管庫 V1 已上線,導覽連結不等 handoff;與聲管庫尚無 family:* 契約,純導覽。 */
+export const FAMILY_VOICES_URL = 'https://galen-chu.github.io/VOICES-Message/';
+export const SIDEBAR_VOICES_LINK = '聲管庫 ↗';
+export const SIDEBAR_VOICES_TITLE = '前往聲管庫(錄音與講稿)';
 export const LIB_FUTURE_NOTE =
   '媒體 metadata 區屬後續期次(docs/IA-PLAN.md U5)。';
 
