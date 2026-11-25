@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deploy-retry.outputs.page_url }}
     steps:
       # action runtime 對齊文管庫 2026-10-14 升級組合(ubuntu-latest 已於 2026-10-19 遷 Ubuntu 26;
       # playwright 1.62.1 的 nativeDeps 已涵蓋 ubuntu26.04,升級行為不變)
@@ -54,5 +54,17 @@ jobs:
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
+      # 2026-11-25 教訓(家族共用):GitHub 服務端「抓 artifact metadata 的 API 讀取」
+      # 會間歇瞬斷(deploy-pages 回「No artifacts named github-pages found」,但 artifact
+      # 實際存在未過期、上游步驟全綠)。首次嘗試失敗時等 30 秒重試一次;重試步驟刻意
+      # 不加 continue-on-error——兩次都敗時 run 仍為紅燈,不造假綠燈。與文管庫 TEXT 同款。
       - id: deployment
+        uses: actions/deploy-pages@v5
+        continue-on-error: true
+      - name: Wait before deploy retry
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 30
+      - name: Deploy retry
+        id: deploy-retry
+        if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@v5
